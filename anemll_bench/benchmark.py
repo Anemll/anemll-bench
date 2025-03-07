@@ -489,11 +489,39 @@ class Benchmark:
         # Open the report if requested
         if auto_open and os.path.exists(output_path):
             try:
-                from webbrowser import open as web_open
-                web_open(f"file://{os.path.abspath(output_path)}")
+                import webbrowser
+                # Ensure we have an absolute path with the file:// protocol
+                abs_path = os.path.abspath(output_path)
+                file_url = f"file://{abs_path}"
+                print(f"DEBUG: Attempting to open browser with URL: {file_url}")
+                print(f"DEBUG: File exists: {os.path.exists(output_path)}")
+                print(f"DEBUG: Absolute path: {abs_path}")
+                
+                # Try to use Safari specifically
+                try:
+                    # Try to use Safari
+                    safari = webbrowser.get('safari')
+                    result = safari.open(file_url)
+                    print(f"DEBUG: Safari browser open result: {result}")
+                except Exception as e:
+                    print(f"DEBUG: Could not use Safari: {e}")
+                    # Fall back to default browser
+                    #result = webbrowser.open(file_url)
+                    #print(f"DEBUG: Default browser open result: {result}")
+                
+                # Comment out the system 'open' command which is causing a second browser window
+                # try:
+                #     import subprocess
+                #     subprocess.run(['open', abs_path], check=True)
+                #     print(f"DEBUG: Opened with system 'open' command")
+                # except Exception as e:
+                #     print(f"DEBUG: Could not open with system command: {e}")
+                
                 print(f"Opened report in browser: {output_path}")
+                print(f"Report URL: {file_url}")
             except Exception as e:
                 print(f"Could not open report in browser: {e}")
+                print(f"DEBUG: Exception details: {type(e).__name__}: {str(e)}")
                 print(f"Report saved to: {output_path}")
         else:
             print(f"Report saved to: {output_path}")
@@ -876,9 +904,6 @@ class Benchmark:
         
         print(f"\nGenerating report: {report_path}")
         self.generate_report(output_path=report_path, include_charts=include_charts, auto_open=auto_open)
-        
-        if auto_open:
-            print(f"Opened report in browser: {report_path}")
         
         return results
 

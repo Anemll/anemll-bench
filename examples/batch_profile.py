@@ -233,7 +233,7 @@ def main():
     print(f"HTML summary saved to {summary_html_path}")
     
     # Open the summary HTML report
-    webbrowser.open(f"file://{os.path.abspath(summary_html_path)}")
+    #webbrowser.open(f"file://{os.path.abspath(summary_html_path)}")
     
     return 0
 

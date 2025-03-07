@@ -485,7 +485,7 @@ def main():
         if not args.no_browser:
             abs_path = os.path.abspath(html_path)
             print(f"Opening report in browser: {abs_path}")
-            webbrowser.open(f"file://{abs_path}")
+            #webbrowser.open(f"file://{abs_path}")
         
     except Exception as e:
         logger.error(f"Error profiling model: {e}")

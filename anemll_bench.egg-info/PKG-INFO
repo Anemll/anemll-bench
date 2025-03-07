@@ -1,13 +1,56 @@
+Metadata-Version: 2.2
+Name: anemll-bench
+Version: 0.1.0
+Summary: Benchmarking tools for Apple Neural Engine performance
+Home-page: https://github.com/anemll/anemll-bench
+Author: ANEMLL Team
+Author-email: contact@anemll.org
+Keywords: machine learning,benchmarking,apple neural engine,ML,ANE,CoreML
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Operating System :: MacOS :: MacOS X
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=2.5.0
+Requires-Dist: coremltools>=8.2
+Requires-Dist: transformers>=4.36.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: seaborn>=0.12.0
+Requires-Dist: plotly>=5.18.0
+Requires-Dist: tqdm>=4.66.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: psutil>=5.9.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: black>=23.12.0
+Requires-Dist: flake8>=7.0.0
+Requires-Dist: pytest>=7.4.0
+Requires-Dist: pytest-cov>=4.1.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
 # ANEMLL-Bench
-
-## Overview
-ANEMLL-Bench is a benchmarking tool specifically designed to measure and evaluate the performance of machine learning models on Apple's Neural Engine (ANE). It provides comprehensive metrics including inference time and memory bandwidth utilization (GB/s) to help researchers and developers optimize their models for Apple Silicon.
-
-This alpha release requires macOS 15. We plan to update support for older OS versions in the next update. Currently, only Memory bandwidth (GB/s) is benchmarked in this release.
 
 ## Compatibility Notice
 
-⚠️ **Important**: This project is designed to work with **Python 3.9-3.11** and has known compatibility issues with Python 3.13+.
+⚠️ **Important**: This project is designed to work with **Python 3.9** and has known compatibility issues with Python 3.13+.
 
 ### Python Version Compatibility
 
@@ -20,47 +63,6 @@ This alpha release requires macOS 15. We plan to update support for older OS ver
 - **Required for ANEMLL**: PyTorch 2.5.0
 - **Issue with Python 3.13+**: PyTorch 2.5.0 is not available for Python 3.13+
 - **Workaround for Python 3.13+**: Use PyTorch 2.6.0, but expect potential compatibility issues with coremltools
-
-## Additional Requirements
-
-- macOS with Apple Silicon
-- Xcode Command Line Tools installed
-- Homebrew (for installing Python 3.9)
-
-## Quick Start
-
-To get started quickly with platform-specific optimized models:
-
-```bash
-# Download and install the package
-pip install -r requirements.txt
-pip install -e .
-
-# Download all optimized models for your macOS version
-python examples/sync_models.py
-
-# Benchmark all available models and generate a report
-python examples/benchmark_all_models.py
-
-# Run a benchmark with a specific pre-optimized model
-python examples/load_platform_models.py --model llama_lm_head
-
-# Use existing local models without checking online (prevents downloads)
-python examples/benchmark_all_models.py --use-local --no-sync
-```
-
-This will automatically download and prepare all the optimized models for your specific macOS version. The models are stored in `~/.cache/anemll-bench/` and are ready to use immediately.
-
-## Features
-- Benchmark models on Apple Neural Engine and compare with CPU/GPU performance
-- Measure inference time and memory bandwidth utilization (GB/s)
-- Download and convert models from Hugging Face to CoreML format
-- Automatically collect system information (Mac model, CPU details, memory)
-- Generate comprehensive HTML reports with visualizations
-- Upload and share reports via multiple services (GitHub Gist, JSONBin, Pastebin)
-- (future) Easy-to-use API for integrating new models
-- Automatic downloading of platform-specific optimized models (macOS 15.x+)
-- Robust model size detection for accurate throughput calculation
 
 ## Setup Instructions
 
@@ -95,31 +97,92 @@ chmod +x install_dependencies.sh
 ./install_dependencies.sh
 ```
 
-> **Note**: This may result in compatibility issues if you're using Python 3.13+. See the [Troubleshooting](#troubleshooting) section for common issues and solutions.
+Note that this may result in compatibility issues if you're using Python 3.13+.
+
+## Troubleshooting
+
+### PyTorch Installation Issues
+
+If you encounter errors like:
+
+```
+ERROR: Could not find a version that satisfies the requirement torch==2.5.0
+ERROR: No matching distribution found for torch==2.5.0
+```
+
+This is likely due to using Python 3.13+, which doesn't have PyTorch 2.5.0 available. Solutions:
+
+1. Use Python 3.9 as recommended (Option 1 above)
+2. Accept the installation of PyTorch 2.6.0 instead, but be aware of potential compatibility issues with coremltools
+
+### CoreMLTools Issues
+
+If you encounter errors related to missing modules like:
+
+```
+Failed to load _MLModelProxy: No module named 'coremltools.libcoremlpython'
+```
+
+This could be due to:
+
+1. Incompatibility between PyTorch 2.6.0 and coremltools
+2. Incorrect installation order (PyTorch should be installed before coremltools)
+
+Try reinstalling with Python 3.9 using the provided script.
+
+## Additional Requirements
+
+- macOS with Apple Silicon
+- Xcode Command Line Tools installed
+- Homebrew (for installing Python 3.9)
+
+## License
+
+[Include license information here]
+
+## Overview
+ANEMLL-Bench is a benchmarking tool specifically designed to measure and evaluate the performance of machine learning models on Apple's Neural Engine (ANE). It provides comprehensive metrics including inference time and memory bandwidth utilization (GB/s) to help researchers and developers optimize their models for Apple Silicon.
+
+This alpha release requires macOS 15. We plan to update support for older OS versions in the next update. Currently, only Memory bandwidth (GB/s) is benchmarked in this release.
+
+## Quick Start
+
+To get started quickly with platform-specific optimized models:
+
+```bash
+# Download and install the package
+pip install -r requirements.txt
+pip install -e .
+
+# Download all optimized models for your macOS version
+python examples/sync_models.py
+
+# Benchmark all available models and generate a report
+python examples/benchmark_all_models.py
+
+# Run a benchmark with a specific pre-optimized model
+python examples/load_platform_models.py --model llama_lm_head
+
+# Use existing local models without checking online (prevents downloads)
+python examples/benchmark_all_models.py --use-local --no-sync
+```
+
+This will automatically download and prepare all the optimized models for your specific macOS version. The models are stored in `~/.cache/anemll-bench/` and are ready to use immediately.
+
+## Features
+- Benchmark models on Apple Neural Engine and compare with CPU/GPU performance
+- Measure inference time and memory bandwidth utilization (GB/s)
+- Download and convert models from Hugging Face to CoreML format
+- Automatically collect system information (Mac model, CPU details, memory)
+- Generate comprehensive HTML reports with visualizations
+- Upload and share reports via multiple services (GitHub Gist, JSONBin, Pastebin)
+- Easy-to-use API for integrating new models
+- Automatic downloading of platform-specific optimized models (macOS 15.x+)
+- Robust model size detection for accurate throughput calculation
 
 ## Installation
 
 ### Prerequisites
-
-#### Xcode Command Line Tools
-
-ANEMLL-Bench requires Xcode Command Line Tools to be installed on macOS, as they provide essential development libraries and compilers needed for the build process.
-
-To check if Xcode Command Line Tools are installed:
-
-```bash
-xcode-select -p
-```
-
-If the command returns a path (e.g., `/Library/Developer/CommandLineTools` or `/Applications/Xcode.app/Contents/Developer`), then the tools are installed.
-
-If not installed, you can install them by running:
-
-```bash
-xcode-select --install
-```
-
-Follow the prompts to complete the installation.
 
 ### Setting Up Your Environment
 
@@ -189,6 +252,29 @@ python -m anemll_bench --system-info
 ```
 
 This should display information about your system, including whether you have Apple Silicon and Neural Engine available.
+
+
+#### Xcode Command Line Tools
+
+ANEMLL-Bench requires Xcode Command Line Tools to be installed on macOS, as they provide essential development libraries and compilers needed for the build process.
+
+To check if Xcode Command Line Tools are installed:
+
+```bash
+xcode-select -p
+```
+
+If the command returns a path (e.g., `/Library/Developer/CommandLineTools` or `/Applications/Xcode.app/Contents/Developer`), then the tools are installed.
+
+If not installed, you can install them by running:
+
+```bash
+xcode-select --install
+```
+
+Follow the prompts to complete the installation.
+
+
 
 ## Usage
 
@@ -707,53 +793,6 @@ The TFLOPS metric (Tera Floating Point Operations per Second) is temporarily dis
 
 ANEMLL-Bench automatically detects model size by examining the weight files in both `.mlmodelc` and `.mlpackage` formats. This size is used when calculating memory bandwidth utilization.
 
-## Troubleshooting
-
-### PyTorch Installation Issues
-
-If you encounter errors like:
-
-```
-ERROR: Could not find a version that satisfies the requirement torch==2.5.0
-ERROR: No matching distribution found for torch==2.5.0
-```
-
-This is likely due to using Python 3.13+, which doesn't have PyTorch 2.5.0 available. Solutions:
-
-1. Use Python 3.9 as recommended
-2. Accept the installation of PyTorch 2.6.0 instead, but be aware of potential compatibility issues with coremltools
-
-### CoreMLTools Issues
-
-If you encounter errors related to missing modules like:
-
-```
-Failed to load _MLModelProxy: No module named 'coremltools.libcoremlpython'
-```
-
-This could be due to:
-
-1. Incompatibility between PyTorch 2.6.0 and coremltools
-2. Incorrect installation order (PyTorch should be installed before coremltools)
-
-Try reinstalling with Python 3.9 using the provided script.
-
-### Browser Opening Issues
-
-If you encounter issues with browser functionality when generating reports:
-
-1. **Multiple Browser Windows**: If the same report opens in multiple browser windows, this could be due to both Safari and system 'open' commands being used simultaneously. Recent versions of the tool have fixed this issue to ensure only one browser window is opened.
-
-2. **Browser Not Opening**: If reports are generated successfully but don't open in the browser, check:
-   - The file exists in the expected location (typically `~/.cache/anemll-bench/reports/`)
-   - Your default browser settings
-   - File permissions for the generated HTML report
-
-You can manually open generated reports using:
-```bash
-open $(find ~/.cache/anemll-bench/reports -name "*.html" | sort -r | head -1)
-```
-
 ## Documentation
 For more detailed documentation, please refer to the [docs](./docs) directory.
 
@@ -766,6 +805,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgements
 - This project is part of the ANEMLL (Artificial Neural Engine Machine Learning Library) initiative
 - Special thanks to Apple for developing the CoreML toolchain
-
-
-

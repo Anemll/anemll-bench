@@ -222,7 +222,7 @@ def main():
     # Open the HTML report in the default web browser
     report_path = os.path.abspath(args.report)
     print(f"Opening report: {report_path}")
-    webbrowser.open(f"file://{report_path}", new=2)
+    #webbrowser.open(f"file://{report_path}", new=2)
     
     # Save JSON results if requested
     if args.output:

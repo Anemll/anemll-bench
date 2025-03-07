@@ -17,6 +17,7 @@ dist/
 
 profile_report.html
 anemll_bench/results/
-reports/
+reports/*.html
 examples/*.html
 benchmark_*.html
+env-anemll-bench/*
