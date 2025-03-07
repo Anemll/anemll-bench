@@ -5,6 +5,41 @@ ANEMLL-Bench is a benchmarking tool specifically designed to measure and evaluat
 
 This alpha release requires macOS 15. We plan to update support for older OS versions in the next update. Currently, only Memory bandwidth (GB/s) is benchmarked in this release.
 
+<div align="center">
+  <h2>📊 Help Us Build a Comprehensive Benchmark Database! 📊</h2>
+  <div style="background-color: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 5px solid #007bff; margin: 20px 0; color: #333333;">
+    <h3 style="color: #000000;">🚨 PLEASE SUBMIT YOUR BENCHMARK RESULTS FOR: 🚨</h3>
+    <table align="center" style="color: #333333;">
+      <tr>
+        <td align="center"><strong style="color: #000000;">M2 Series</strong></td>
+        <td align="center"><strong style="color: #000000;">M3 Series</strong></td>
+        <td align="center"><strong style="color: #000000;">M4 Series</strong></td>
+      </tr>
+      <tr>
+        <td>
+          ✓ M2<br>
+          ✓ M2 PRO<br>
+          ✓ M2 MAX<br>
+          ✓ M2 ULTRA
+        </td>
+        <td>
+          ✓ M3<br>
+          ✓ M3 PRO<br>
+          ✓ M3 MAX<br>
+          ✓ M3 ULTRA
+        </td>
+        <td>
+          ✓ M1 ULTRA<br>
+          ✓ M4<br>
+          ✓ M4 PRO<br>
+          ✓ M4 MAX
+        </td>
+      </tr>
+    </table>
+    <p style="color: #333333;"><em>📧 Submit results to: <a href="mailto:realanemll@gmail.com" style="color: #0366d6;">realanemll@gmail.com</a> or <a href="https://github.com/Anemll/anemll-bench/issues/new" style="color: #0366d6;">open an issue</a></em></p>
+  </div>
+</div>
+
 ![Sample Benchmark Results](./assets/sample.png)
 
 [**Jump to Quick Start →**](#quick-start)
@@ -36,8 +71,13 @@ This alpha release requires macOS 15. We plan to update support for older OS ver
 To get started quickly with platform-specific optimized models:
 
 ```bash
-# Download and install the package
+# Create a virtual environment
+python -m venv env-anemll-bench
+
+source env-anemll-bench/bin/activate
+
 pip install -r requirements.txt
+
 pip install -e .
 
 # Download all optimized models for your macOS version
@@ -85,6 +125,15 @@ source env-anemll-bench/bin/activate
 # Install dependencies
 cd env-anemll-bench
 ./install_dependencies.sh
+cd ..
+pip install -e .
+
+#download models
+python examples/sync_models.py
+
+#run banhcmarks
+python examples/benchmark_all_models.py
+
 ```
 
 ### Option 2: Using Your Current Python Version
@@ -123,66 +172,6 @@ If not installed, you can install them by running:
 xcode-select --install
 ```
 
-Follow the prompts to complete the installation.
-
-### Setting Up Your Environment
-
-#### Option 1: Using Python venv (Recommended)
-
-```bash
-# Create a virtual environment
-python -m venv env-anemll-bench
-
-# Activate the virtual environment
-# On macOS
-source env-anemll-bench/bin/activate
-
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install the package in development mode
-pip install -e .
-```
-
-#### Option 2: Using Conda
-
-```bash
-# Create a conda environment
-conda create -n anemll-bench python=3.9
-
-# Activate the environment
-conda activate anemll-bench
-
-# Install PyTorch
-conda install pytorch -c pytorch
-
-# Install remaining dependencies
-pip install -r requirements.txt
-
-# Install the package in development mode
-pip install -e .
-```
-
-#### Note for Apple Silicon Macs
-
-For best performance on Apple Silicon (M1/M2/M3), ensure you're using Python 3.9+ and the ARM64 version of PyTorch:
-
-```bash
-# For Apple Silicon Macs
-pip install torch==2.5.0 --extra-index-url https://download.pytorch.org/whl/nightly/cpu
-
-# Then install other dependencies
-pip install -r requirements.txt
-```
-
-### Installing from PyPI
-
-Alternatively, you can install directly from PyPI:
-
-```bash
-pip install anemll-bench
-```
 
 ### Verifying Installation
 
@@ -217,26 +206,6 @@ This will automatically:
 2. Benchmark each available model for your macOS version 
 3. Generate a comprehensive report with comparison metrics
 
-You can also use the API to benchmark all models programmatically:
-
-```python
-from anemll_bench import Benchmark
-
-benchmark = Benchmark()
-
-# Benchmark all available models and generate a report
-results = benchmark.benchmark_all_platform_models(
-    num_runs=300,                  # Number of iterations per model (default: 300)
-    batch_size=1,                  # Batch size for inputs
-    sequence_length=None,          # Sequence length (auto-detected from model)
-    sync_first=True,               # Download missing models first
-    include_charts=True,           # Include charts in the report
-    output_path="my_report.html",  # Custom report path
-    use_local_if_exists=True       # Use local models when available
-)
-
-print(f"Benchmarked {len(results)} models")
-```
 
 ### Checking for Online Model Updates
 
