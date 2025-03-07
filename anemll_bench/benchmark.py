@@ -256,7 +256,8 @@ class Benchmark:
             memory_used_mb=0,  # Memory usage tracking not implemented for direct file benchmarking
             tflops=results["tflops"],
             throughput_gb_s=results["throughput_gb_s"],
-            system_info=self.system_info
+            system_info=self.system_info,
+            model_size_mb=results.get("model_size_mb", 0)  # Get model size from adapter results
         )
         
         self.results.append(result)

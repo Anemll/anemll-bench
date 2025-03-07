@@ -18,6 +18,7 @@ class BenchmarkResult:
     tflops: Optional[float] = None
     throughput_gb_s: Optional[float] = None
     system_info: Dict[str, Any] = field(default_factory=dict)
+    model_size_mb: float = 0  # Model size in megabytes
 
     @property
     def throughput_gbps(self):
