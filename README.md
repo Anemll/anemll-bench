@@ -5,6 +5,10 @@ ANEMLL-Bench is a benchmarking tool specifically designed to measure and evaluat
 
 This alpha release requires macOS 15. We plan to update support for older OS versions in the next update. Currently, only Memory bandwidth (GB/s) is benchmarked in this release.
 
+![Sample Benchmark Results](./assets/sample.png)
+
+[**Jump to Quick Start →**](#quick-start)
+
 ## Compatibility Notice
 
 ⚠️ **Important**: This project is designed to work with **Python 3.9-3.11** and has known compatibility issues with Python 3.13+.
@@ -684,6 +688,8 @@ clear_cache(include_meta=True)
 ## Understanding Performance Metrics
 
 ANEMLL-Bench provides several key performance metrics to help you evaluate your models:
+
+
 
 ### Inference Time
 
