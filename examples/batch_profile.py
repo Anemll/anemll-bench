@@ -35,7 +35,7 @@ def parse_args():
                         help='Batch size for profiling')
     parser.add_argument('--sequence-length', type=int, default=512,
                         help='Sequence length for text models')
-    parser.add_argument('--hidden-size', type=int, default=768,
+    parser.add_argument('--hidden-size', type=int, default=4096,
                         help='Hidden size for text models')
     parser.add_argument('--iterations', type=int, default=100,
                         help='Number of iterations for profiling')

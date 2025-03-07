@@ -18,3 +18,5 @@ dist/
 profile_report.html
 anemll_bench/results/
 reports/
+examples/*.html
+benchmark_*.html

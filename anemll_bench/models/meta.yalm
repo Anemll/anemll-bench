@@ -1,0 +1,11 @@
+model_info:
+  macos_15_x:
+    - name: "llama_lm_head"
+      url: "https://huggingface.co/anemll/anemll-bench/resolve/main/llama_lm_head.mlmodelc.zip"
+      type: "mlmodelc"
+      hidden_size: 4096
+      
+    - name: "llama_lm_head_lut6" 
+      url: "https://huggingface.co/anemll/anemll-bench/resolve/main/llama_lm_head_lut6.mlpackage.zip"
+      type: "mlpackage"
+      hidden_size: 4096 
