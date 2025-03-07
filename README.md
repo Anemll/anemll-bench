@@ -451,30 +451,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-<div align="center">
-  <a href="https://www.apple.com/research/">
-    <img src="https://img.shields.io/badge/Made%20by-Apple-999999?style=for-the-badge&logo=apple&logoColor=white" alt="Made by Apple">
-  </a>
-  <a href="https://github.com/Anemll/anemll-bench">
-    <img src="https://img.shields.io/github/stars/Anemll/anemll-bench?style=for-the-badge&logo=github&logoColor=white" alt="GitHub stars">
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License MIT">
-  </a>
-  <a href="https://developer.apple.com/ml-compute/">
-    <img src="https://img.shields.io/badge/platform-Apple%20Silicon-orange?style=for-the-badge&logo=apple&logoColor=white" alt="Platform">
-  </a>
-  <br>
-  <br>
-  <p>
-    <strong>ANEMLL-Bench</strong> is part of Apple's Machine Learning Research Tools.<br>
-    If you find this project useful, please consider giving it a ⭐️ on <a href="https://github.com/Anemll/anemll-bench">GitHub</a>!
-  </p>
-  <p>
-    Made with ❤️ by the Apple Machine Learning Research team
-  </p>
-  <sub>Copyright © 2024 Apple Inc. All rights reserved.</sub>
-</div>
+
 
 ---
 ## Links & Resources
@@ -486,9 +463,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Anemll/anemll-bench&type=Date)](https://star-history.com/#Anemll/anemll-bench&Date)
-
 For any questions or support, reach out to us at [realanemll@gmail.com](mailto:realanemll@gmail.com)
 
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Anemll/anemll-bench&type=Date)](https://star-history.com/#Anemll/anemll-bench&Date)
