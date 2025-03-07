@@ -1,0 +1,33 @@
+{
+  "models": [
+    {
+      "name": "Phi-2",
+      "id": "microsoft/phi-2",
+      "type": "pytorch",
+      "input_shape": [1, 128, 2560],
+      "backends": ["CPU", "ANE"],
+      "num_runs": 50
+    },
+    {
+      "name": "DistilBERT",
+      "id": "distilbert-base-uncased",
+      "type": "pytorch",
+      "input_shape": [1, 128, 768],
+      "backends": ["CPU", "ANE"],
+      "num_runs": 50
+    },
+    {
+      "name": "TinyLlama",
+      "id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "type": "pytorch",
+      "input_shape": [1, 128, 2048],
+      "backends": ["CPU", "ANE"],
+      "num_runs": 50
+    }
+  ],
+  "output": {
+    "report_path": "reports/multi_model_benchmark.html",
+    "upload": true,
+    "upload_service": "jsonbin"
+  }
+} 

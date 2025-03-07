@@ -1,0 +1,18 @@
+# ✅ Core Dependencies (required)
+coremltools>=8.2    # Required for Apple Neural Engine support
+torch==2.5.0        # Deep learning framework
+transformers>=4.36.0  # Hugging Face Transformers library
+pandas>=2.0.0       # Required for data processing and report generation
+matplotlib>=3.5.0   # Required for visualization and report charts
+seaborn>=0.12.0     # Enhanced statistical data visualization
+plotly>=5.18.0      # Interactive plotting for enhanced report visuals
+numpy>=1.24.0       # Required for array operations
+tqdm>=4.66.0        # Progress bars for long-running operations
+requests>=2.28.0    # For report uploading functionality
+psutil>=5.9.0       # System monitoring and information
+
+# ⚠️ Test & Development Dependencies (optional for users, required for developers)
+black>=23.12.0      # Code formatting
+flake8>=7.0.0       # Code linting
+pytest>=7.4.0       # Testing framework
+pytest-cov>=4.1.0   # Test coverage reporting 

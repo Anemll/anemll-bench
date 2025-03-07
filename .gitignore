@@ -1,0 +1,20 @@
+# Virtual Environment
+env-aneml-bench/*
+venv/
+ENV/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+
+
+profile_report.html
+anemll_bench/results/
+reports/
