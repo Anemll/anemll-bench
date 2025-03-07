@@ -249,7 +249,7 @@ class Benchmark:
         # Create a BenchmarkResult
         result = BenchmarkResult(
             model_name=model_name,
-            input_shape=[batch_size, sequence_length, hidden_size],
+            input_shape=results.get("primary_input_shape", [batch_size, sequence_length, hidden_size]),
             params_count=int(results.get("params_estimate", 0)),
             backend=backend,
             inference_time_ms=results["avg_inference_time_ms"],

@@ -205,6 +205,16 @@ def profile_coreml_model(model: Any, num_iterations: int = 100,
     input_shapes = {name: arr.shape for name, arr in inputs.items()}
     print(f"Using inputs: {input_shapes}")
     
+    # Extract the primary input shape for reporting
+    primary_input_shape = None
+    if "hidden_states" in input_shapes:
+        primary_input_shape = list(input_shapes["hidden_states"])
+    elif "input_ids" in input_shapes:
+        primary_input_shape = list(input_shapes["input_ids"])
+    elif input_shapes:
+        # Just use the first input's shape if nothing else
+        primary_input_shape = list(next(iter(input_shapes.values())))
+    
     # Warm up - Initial runs can be slower due to compilation and memory allocation
     print("Warming up model...")
     for _ in range(5):
@@ -342,6 +352,7 @@ def profile_coreml_model(model: Any, num_iterations: int = 100,
         "hidden_size": hidden_size,
         "model_path": model_path,
         "model_type": metadata.get("type", "unknown"),
+        "primary_input_shape": primary_input_shape,
     }
     
     return results
