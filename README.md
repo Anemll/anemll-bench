@@ -1,5 +1,9 @@
 # ANEMLL-Bench
 
+## ⚠️ Attention: macOS 15.x is required! ⚠️
+
+This alpha release requires macOS 15. We plan to update support for older OS versions in the next update.
+
 ## Overview
 ANEMLL-Bench  (pronounced like "animal-bench") is a benchmarking tool specifically designed to measure and evaluate the performance of machine learning models on Apple's Neural Engine (ANE). It provides comprehensive metrics including inference time and memory bandwidth utilization (GB/s) to help researchers and developers optimize their models for Apple Silicon.
 
