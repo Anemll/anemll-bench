@@ -137,7 +137,7 @@ pip install -e .
 #download models
 python examples/sync_models.py
 
-#run banhcmarks
+#run benchmarks
 python examples/benchmark_all_models.py
 
 ```
