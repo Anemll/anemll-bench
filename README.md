@@ -13,9 +13,9 @@ ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.c
 
 ## 📊 [View Benchmark Results](./Results.MD) 📊
 
-[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250309_v4)](./Results.MD)
+[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250309_v6)](./Results.MD)
 
-Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M4 series).
+Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M3, M4 series).
 
 <div align="center">
   <h2>📊 Help Us Build a Comprehensive Benchmark Database! 📊</h2>
@@ -37,7 +37,7 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
         <td>
           ✓ M3<br>
           ✓ M3 PRO<br>
-          ✓ M3 MAX<br>
+          ✓ M3 MAX ✅<br>
           ✓ M3 ULTRA
         </td>
         <td>
@@ -105,151 +105,4 @@ python examples/load_platform_models.py --model llama_lm_head
 python examples/benchmark_all_models.py --use-local --no-sync
 ```
 
-This will automatically download and prepare all the optimized models for your specific macOS version. The models are stored in `~/.cache/anemll-bench/` and are ready to use immediately.
-
-After running benchmarks, check out the [benchmark results](./Results.MD) to see how your device compares to other Apple Silicon chips.
-
-## Features
-- Benchmark models on Apple Neural Engine and compare with CPU/GPU performance
-- Measure inference time and memory bandwidth utilization (GB/s)
-- Download and convert models from Hugging Face to CoreML format
-- Automatically collect system information (Mac model, CPU details, memory)
-- Generate comprehensive HTML reports with visualizations
-- Upload and share reports via multiple services (GitHub Gist, JSONBin, Pastebin)
-- (future) Easy-to-use API for integrating new models
-- Automatic downloading of platform-specific optimized models (macOS 15.x+)
-- Robust model size detection for accurate throughput calculation
-
-## Setup Instructions
-
-### Option 1: Using Python 3.9 (Recommended)
-
-We provide a script to create a Python 3.9 virtual environment:
-
-```bash
-# Make the script executable
-chmod +x create_python39_env.sh
-
-# Run the script
-./create_python39_env.sh
-
-# Activate the environment
-source env-anemll-bench/bin/activate
-
-# Install dependencies
-cd env-anemll-bench
-./install_dependencies.sh
-cd ..
-pip install -e .
-
-#download models
-python examples/sync_models.py
-
-#run banhcmarks
-python examples/benchmark_all_models.py
-
-```
-
-### Option 2: Using Your Current Python Version
-
-If you want to use your current Python version:
-
-```bash
-# Make the script executable
-chmod +x install_dependencies.sh
-
-# Run the script
-./install_dependencies.sh
-```
-
-> **Note**: This may result in compatibility issues if you're using Python 3.13+. See the [Troubleshooting](#troubleshooting) section for common issues and solutions.
-
-## Installation
-
-### Prerequisites
-
-#### Xcode Command Line Tools
-
-ANEMLL-Bench requires Xcode Command Line Tools to be installed on macOS, as they provide essential development libraries and compilers needed for the build process.
-
-To check if Xcode Command Line Tools are installed:
-
-```bash
-xcode-select -p
-```
-
-If the command returns a path (e.g., `/Library/Developer/CommandLineTools` or `/Applications/Xcode.app/Contents/Developer`), then the tools are installed.
-
-If not installed, you can install them by running:
-
-```bash
-xcode-select --install
-```
-
-
-### Verifying Installation
-
-To verify your installation, run the system info command:
-
-```bash
-python -m anemll_bench --system-info
-```
-
-This should display information about your system, including whether you have Apple Silicon and Neural Engine available.
-
-### Automatic Benchmarking of All Models
-
-You can easily benchmark all available platform-specific models with a single command:
-
-```bash
-# Benchmark all models with default settings (300 iterations)
-python examples/benchmark_all_models.py
-
-# Customize the benchmarking process
-python examples/benchmark_all_models.py --runs 500 --sequence-length 1 --output my_report.html
-
-# Skip model synchronization and use only local models
-python examples/benchmark_all_models.py --no-sync --use-local
-
-# Generate a report without charts
-python examples/benchmark_all_models.py --no-charts
-```
-
-This will automatically:
-1. Download any missing models (unless `--no-sync` and `--use-local` are used)
-2. Benchmark each available model for your macOS version 
-3. Generate a comprehensive report with comparison metrics
-
-
-### Checking for Online Model Updates
-
-The package can check Hugging Face for updated model definitions:
-
-```python
-from anemll_bench.models import check_and_update_platform_models
-
-# Check for updated model definitions online
-check_and_update_platform_models()
-```
-
-You can also use the example scripts provided:
-
-```bash
-# Standard benchmarking (uses local models)
-python examples/load_platform_models.py
-
-# Check for updates online, then benchmark
-python examples/load_platform_models.py --check-online
-
-# Benchmark a specific model with online check
-python examples/load_platform_models.py --model llama_lm_head --check-online --num-runs 50
-
-# Check and update model definitions from Hugging Face
-python examples/check_online_models.py
-```
-
-### Automatic Model Synchronization
-
-The easiest way to get all required models is to run the sync script:
-
-```
+This will automatically download and prepare all the optimized models for your specific macOS version. The models are stored in `~/.cache/anemll-bench/`
