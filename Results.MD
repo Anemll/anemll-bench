@@ -37,8 +37,9 @@ As shown in the visualization:
 | M1 Ultra | 54.72 | 7.58 | 1.0x | 1.0x |
 | M2 Max | 62.01 | 6.64 | 1.1x | 1.1x |
 | M2 Ultra | 61.68 | 6.70 | 1.1x | 1.1x |
-| M4 Pro | 126.36 | 3.85 | 2.3x | 2.0x |
-| M4 Max | 118.86 | 3.89 | 2.2x | 2.0x |
+| M4 Pro 16GB MBP  | 64.18 | 6.45 | 1.2x | 1.2x |
+| M4 Pro 24GB Mini| 126.36 | 3.85 | 2.3x | 2.0x |
+| M4 Max | 118.88 | 3.87 | 2.2x | 2.0x |
 
 ### Key Observations
 
@@ -46,14 +47,16 @@ As shown in the visualization:
    - The M1 Ultra shows minimal performance gains over M1 Max, suggesting limited Neural Engine scaling in first-generation Apple Silicon
    - Similar pattern with M2 Ultra vs M2 Max
    - M4 series demonstrates better scaling and significantly improved performance
+   - The base M4 Pro 16GB shows modest improvements (~1.2x) over M1 series, while higher-end M4 variants show much larger gains
 
 2. **Memory Bandwidth Efficiency**:
-   - M4 series shows a ~2.3x improvement in memory bandwidth utilization
-   - This indicates substantial architectural improvements in the Neural Engine
+   - High-end M4 series shows a ~2.3x improvement in memory bandwidth utilization
+   - Entry-level M4 Pro 16GB shows ~1.2x improvement, suggesting memory configuration or thermal constraints may be factors
 
 3. **Inference Time Improvements**:
-   - M4 chips process the same model in approximately half the time compared to M1 chips
-   - This translates directly to improved user experience for AI applications
+   - High-end M4 chips process the same model in approximately half the time compared to M1 chips
+   - Entry-level M4 shows more modest gains, but still outperforms M1 and M2 series
+   - This suggests a significant architectural improvement in the Neural Engine for M4 series
 
 ## Running Your Own Benchmarks
 
