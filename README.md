@@ -23,16 +23,23 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
     <h3 style="color: #000000;">🚨 PLEASE SUBMIT YOUR BENCHMARK RESULTS FOR: 🚨</h3>
     <table align="center" style="color: #333333;">
       <tr>
+        <td align="center"><strong style="color: #000000;">M1 Series</strong></td>
         <td align="center"><strong style="color: #000000;">M2 Series</strong></td>
         <td align="center"><strong style="color: #000000;">M3 Series</strong></td>
         <td align="center"><strong style="color: #000000;">M4 Series</strong></td>
       </tr>
       <tr>
         <td>
+          ✓ M1<br>
+          ✓ M1 PRO<br>
+          ✓ M1 MAX ✅<br>
+          ✓ M1 ULTRA ✅
+        </td>
+        <td>
           ✓ M2<br>
           ✓ M2 PRO<br>
-          ✓ M2 MAX<br>
-          ✓ M2 ULTRA
+          ✓ M2 MAX ✅<br>
+          ✓ M2 ULTRA ✅
         </td>
         <td>
           ✓ M3<br>
@@ -41,10 +48,9 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
           ✓ M3 ULTRA
         </td>
         <td>
-          ✓ M1 ULTRA<br>
-          ✓ M4<br>
-          ✓ M4 PRO<br>
-          ✓ M4 MAX
+          ✓ M4 ✅<br>
+          ✓ M4 PRO ✅<br>
+          ✓ M4 MAX ✅
         </td>
       </tr>
     </table>
