@@ -44,7 +44,7 @@ def generate_visualizations(args):
     
     # Sample data from benchmark results
     # In a real implementation, this would come from parsing the benchmark results file
-    chips = ['M1 Max', 'M1 Ultra', 'M2 Max', 'M2 Ultra', 'M4 Pro\n16GB MBP', 'M4 Pro\n24GB Mini', 'M4 Max']
+    chips = ['M1 Max', 'M1 Ultra', 'M2 Max', 'M2 Ultra', 'M4\n16GB MBP', 'M4 Pro\n24GB Mini', 'M4 Max']
     bandwidth = [54.62, 54.72, 62.01, 61.68, 64.18, 126.36, 118.88]  # GB/s (llama_lm_head)
     inference = [7.61, 7.58, 6.64, 6.70, 6.45, 3.85, 3.87]           # ms (llama_lm_head_lut6)
     bandwidth_factor = ['1.0x', '1.0x', '1.1x', '1.1x', '1.2x', '2.3x', '2.2x']
