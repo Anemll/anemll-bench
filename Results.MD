@@ -2,7 +2,11 @@
 
 This document presents benchmark results for various machine learning models on different Apple Silicon chips, focusing on Neural Engine (ANE) performance.
 
-> We still need M3 RESULTS! please submit if you have M3 available 
+## ⚠️ ATTENTION: M3 RESULTS NEEDED! ⚠️
+
+**We need benchmark data from M3 series devices!** If you have access to any M3 chip variant (M3, M3 Pro, M3 Max, or M3 Ultra), please consider running the benchmarks and submitting your results. Your contribution will help complete our cross-generation performance analysis.
+
+*Submit results to: [realanemll@gmail.com](mailto:realanemll@gmail.com) or [open an issue](https://github.com/Anemll/anemll-bench/issues/new)*
 
 ## Overview
 
