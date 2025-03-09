@@ -2,6 +2,8 @@
 
 This document presents benchmark results for various machine learning models on different Apple Silicon chips, focusing on Neural Engine (ANE) performance.
 
+> We still need M3 RESULTS! please submit if you have M3 available 
+
 ## Overview
 
 ANEMLL-Bench measures two primary metrics:
