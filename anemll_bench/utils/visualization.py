@@ -75,8 +75,8 @@ def plot_chip_comparison(
     ax1.set_xlabel('Chip')
 
     # Set y-axis labels
-    ax1.set_ylabel('Bandwidth (GB/s)', color=bandwidth_color)
-    ax2.set_ylabel('Inference Time (ms)', color=inference_color)
+    ax1.set_ylabel('Bandwidth (GB/s)\n(higher is better)', color=bandwidth_color)
+    ax2.set_ylabel('Inference Time (ms)\n(lower is better)', color=inference_color)
 
     # Set title and legends
     plt.title(title)
@@ -101,6 +101,10 @@ def plot_chip_comparison(
                     transform=ax2.get_xaxis_transform(),
                     fontsize=10, color='black')
 
+    # Check if any chip labels contain newlines and add more bottom padding if needed
+    if any('\n' in chip for chip in chips):
+        plt.subplots_adjust(bottom=0.18)  # Increase bottom margin for multi-line labels
+    
     plt.tight_layout()
     
     # Save the figure if a path is provided

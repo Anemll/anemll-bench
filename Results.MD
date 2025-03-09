@@ -11,8 +11,8 @@ This document presents benchmark results for various machine learning models on 
 ## Overview
 
 ANEMLL-Bench measures two primary metrics:
-1. **Memory Bandwidth (GB/s)**: How Apple Chip Generation utilizes memory bandwidth
-2. **Inference Time (ms)**: How quickly the model produces results
+1. **Memory Bandwidth (GB/s)**: How Apple Chip Generation utilizes memory bandwidth (higher is better)
+2. **Inference Time (ms)**: How quickly the model produces results (lower is better)
 
 Higher memory bandwidth and lower inference time indicate better performance.
 
@@ -20,7 +20,7 @@ Higher memory bandwidth and lower inference time indicate better performance.
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250309_v3)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
