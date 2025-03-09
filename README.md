@@ -11,6 +11,12 @@ This alpha release requires macOS 15. We plan to update support for older OS ver
 
 ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.com)
 
+## 📊 [View Benchmark Results](./Results.MD) 📊
+
+[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png)](./Results.MD)
+
+Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M4 series).
+
 <div align="center">
   <h2>📊 Help Us Build a Comprehensive Benchmark Database! 📊</h2>
   <div style="background-color: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 5px solid #007bff; margin: 20px 0; color: #333333;">
@@ -100,6 +106,8 @@ python examples/benchmark_all_models.py --use-local --no-sync
 ```
 
 This will automatically download and prepare all the optimized models for your specific macOS version. The models are stored in `~/.cache/anemll-bench/` and are ready to use immediately.
+
+After running benchmarks, check out the [benchmark results](./Results.MD) to see how your device compares to other Apple Silicon chips.
 
 ## Features
 - Benchmark models on Apple Neural Engine and compare with CPU/GPU performance
@@ -244,201 +252,4 @@ python examples/check_online_models.py
 
 The easiest way to get all required models is to run the sync script:
 
-```bash
-# Sync all platform models for your macOS version
-python examples/sync_models.py
 ```
-
-This single command will:
-1. Download the latest model definitions from Hugging Face
-2. Identify which models are available for your macOS version
-3. Download and unzip any missing models
-4. Skip models that are already in your cache
-
-After running this command, all optimized models will be ready to use without additional setup.
-
-Additional sync options:
-
-```bash
-# Force update of meta.yalm before syncing
-python examples/sync_models.py --force
-
-# Quiet mode (less output)
-python examples/sync_models.py -q
-```
-
-You can also synchronize models programmatically:
-
-```python
-from anemll_bench.models import sync_platform_models
-
-# Sync all platform models (download what's missing)
-results = sync_platform_models()
-
-# Force update of meta.yalm before syncing
-results = sync_platform_models(force_update=True)
-
-print(f"Downloaded {results['models_downloaded']} models")
-```
-
-For advanced users, the cache management tool provides additional options:
-
-```bash
-# Sync all platform models
-python examples/manage_cache.py sync
-
-# Force meta.yalm update before syncing
-python examples/manage_cache.py sync --force
-
-# Output results in JSON format
-python examples/manage_cache.py sync --json
-```
-
-### Managing the Model Cache
-
-All downloaded models and metadata are stored in `~/.cache/anemll-bench/`. The cache can be managed using the provided utility:
-
-```bash
-# Display cache information
-python examples/manage_cache.py info
-
-# Display cache information in JSON format
-python examples/manage_cache.py info --json
-
-# Clear all models from the cache
-python examples/manage_cache.py clear
-
-# Clear a specific model from the cache
-python examples/manage_cache.py clear --model llama_lm_head
-
-# Clear the entire cache including metadata
-python examples/manage_cache.py clear --all
-
-# Update model definitions from Hugging Face
-python examples/manage_cache.py update
-```
-
-You can also manage the cache programmatically:
-
-```python
-from anemll_bench.models import get_cache_info, clear_cache, CACHE_DIR
-
-# Get information about the cache
-cache_info = get_cache_info()
-print(f"Cache directory: {CACHE_DIR}")
-print(f"Total cache size: {cache_info['total_size_mb']:.2f} MB")
-
-# Clear specific models
-clear_cache(model_name="llama_lm_head")
-
-# Clear the entire cache
-clear_cache(include_meta=True)
-```
-
-## Understanding Performance Metrics
-
-ANEMLL-Bench provides several key performance metrics to help you evaluate your models:
-
-
-
-### Inference Time
-
-The time it takes to perform a single forward pass of the model, measured in milliseconds (ms). This is calculated by averaging the time across multiple iterations (default: 300) to get a stable measurement.
-
-### Memory Bandwidth Utilization (GB/s)
-
-This metric measures how efficiently your model uses the available memory bandwidth. It is calculated by:
-
-```
-Throughput (GB/s) = Model Size (GB) / Inference Time (seconds)
-```
-
-The throughput calculation uses the actual model weights size to provide a more accurate representation of memory bandwidth utilization, especially on the Apple Neural Engine (ANE).
-
-### TFLOPS Calculation (Currently Disabled)
-
-The TFLOPS metric (Tera Floating Point Operations per Second) is temporarily disabled in reports as we work on implementing more accurate calculation methods for various model architectures. Future versions will re-enable this metric with improved precision.
-
-### Model Size Detection
-
-ANEMLL-Bench automatically detects model size by examining the weight files in both `.mlmodelc` and `.mlpackage` formats. This size is used when calculating memory bandwidth utilization.
-
-## Troubleshooting
-
-### PyTorch Installation Issues
-
-If you encounter errors like:
-
-```
-ERROR: Could not find a version that satisfies the requirement torch==2.5.0
-ERROR: No matching distribution found for torch==2.5.0
-```
-
-This is likely due to using Python 3.13+, which doesn't have PyTorch 2.5.0 available. Solutions:
-
-1. Use Python 3.9 as recommended
-2. Accept the installation of PyTorch 2.6.0 instead, but be aware of potential compatibility issues with coremltools
-
-### CoreMLTools Issues
-
-If you encounter errors related to missing modules like:
-
-```
-Failed to load _MLModelProxy: No module named 'coremltools.libcoremlpython'
-```
-
-This could be due to:
-
-1. Incompatibility between PyTorch 2.6.0 and coremltools
-2. Incorrect installation order (PyTorch should be installed before coremltools)
-
-Try reinstalling with Python 3.9 using the provided script.
-
-### Browser Opening Issues
-
-If you encounter issues with browser functionality when generating reports:
-
-1. **Multiple Browser Windows**: If the same report opens in multiple browser windows, this could be due to both Safari and system 'open' commands being used simultaneously. Recent versions of the tool have fixed this issue to ensure only one browser window is opened.
-
-2. **Browser Not Opening**: If reports are generated successfully but don't open in the browser, check:
-   - The file exists in the expected location (typically `~/.cache/anemll-bench/reports/`)
-   - Your default browser settings
-   - File permissions for the generated HTML report
-
-You can manually open generated reports using:
-```bash
-open $(find ~/.cache/anemll-bench/reports -name "*.html" | sort -r | head -1)
-```
-
-
-## Documentation
-For more detailed documentation, please refer to the [docs](./docs) directory.
-
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-- This project is part of the ANEMLL (Artificial Neural Engine Machine Learning Library) initiative
-- Special thanks to Apple for developing the CoreML toolchain
-
----
-
-
-
----
-## Links & Resources
-
-- 🌐 Website: [anemll.com](https://anemll.com)
-- 🤗 Models: [huggingface.co/anemll](https://huggingface.co/anemll)
-- 📱 X: [@anemll](https://x.com/anemll)
-- 💻 GitHub: [github.com/anemll](https://github.com/anemll)
-
-## Contact
-
-For any questions or support, reach out to us at [realanemll@gmail.com](mailto:realanemll@gmail.com)
-
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Anemll/anemll-bench&type=Date)](https://star-history.com/#Anemll/anemll-bench&Date)
