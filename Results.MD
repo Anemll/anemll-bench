@@ -20,13 +20,13 @@ Higher memory bandwidth and lower inference time indicate better performance.
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250309_v6)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250310_v1)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
 - **M3 Max** shows impressive memory bandwidth (2.2x over M1 series) and excellent inference performance (1.9x faster than M1)
-- **M4 Series** inference times are approximately 2.0x faster than M1 chips, only slightly better than M3 Max
-- M3 Max and M4 chips represent significant leaps in both bandwidth and inference speed over M1/M2 generations
+- **Base M2** has slightly better bandwidth than M1 series but slightly worse inference time
+- The M2 Max/Ultra and M4 base model show modest improvements, while M3 Max and high-end M4 variants represent significant leaps in performance
 
 ## Detailed Benchmark Results
 
@@ -36,6 +36,7 @@ As shown in the visualization:
 |------|------------------------|---------------------|------------------|------------------|
 | M1 Max | 54.62 | 7.61 | 1.0x | 1.0x |
 | M1 Ultra | 54.72 | 7.58 | 1.0x | 1.0x |
+| M2 | 60.45 | 8.67 | 1.1x | 0.9x |
 | M2 Max | 62.01 | 6.64 | 1.1x | 1.1x |
 | M2 Ultra | 61.68 | 6.70 | 1.1x | 1.1x |
 | M3 Max | 120.22 | 3.98 | 2.2x | 1.9x |
@@ -48,13 +49,15 @@ As shown in the visualization:
 1. **Neural Engine Scaling**:
    - The M1 Ultra shows minimal performance gains over M1 Max, suggesting limited Neural Engine scaling in first-generation Apple Silicon
    - Similar pattern with M2 Ultra vs M2 Max
+   - The base M2 chip has slightly better bandwidth than M1 series, but surprisingly worse inference time
    - M3 Max shows excellent memory bandwidth utilization and very good inference times, competitive with M4 series
    - M4 series demonstrates slightly better performance across both metrics compared to M3 Max
    - The base M4 16GB shows modest improvements (~1.2x) over M1 series, significantly underperforming both M3 Max and higher-end M4 variants
 
 2. **Memory Bandwidth Efficiency**:
    - M3 Max and high-end M4 series show ~2.2-2.3x improvement in memory bandwidth utilization
-   - This indicates substantial architectural improvements in the Neural Engine starting with the M3 generation
+   - Base M2 shows only a minor improvement (1.1x) over M1 series
+   - This indicates that the substantial architectural improvements in the Neural Engine started with the M3 generation
    - Entry-level M4 16GB shows ~1.2x improvement, suggesting memory configuration or thermal constraints may be factors
 
 3. **Inference Time Improvements**:
