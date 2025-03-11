@@ -101,11 +101,8 @@ pip install -e .
 # Download all optimized models for your macOS version
 python examples/sync_models.py
 
-# Benchmark all available models and generate a report
-python examples/benchmark_all_models.py
-
-# Run a benchmark with a specific pre-optimized model
-python examples/load_platform_models.py --model llama_lm_head
+# Update meta.yalm file and download any missing/new models
+python examples/sync_models.py --update
 
 # Use existing local models without checking online (prevents downloads)
 python examples/benchmark_all_models.py --use-local --no-sync
@@ -230,17 +227,17 @@ This will automatically:
 
 ### Dual Model Benchmarking
 
-The new dual model benchmarking feature allows you to run two models simultaneously to measure potential bandwidth improvements:
+The dual model benchmarking feature allows you to run two models simultaneously to measure potential bandwidth improvements:
 
 ```bash
+# First time setup: ensure you have all required models
+python examples/update_dual_benchmark.py
+
 # Run the dual model benchmark with default settings
 python examples/benchmark_dual_models.py
 
 # Customize the benchmark run
 python examples/benchmark_dual_models.py --runs 500 --backend ANE
-
-# Generate an HTML report of the results
-python examples/benchmark_dual_models.py --report dual_benchmark_results.html
 ```
 
 This benchmark will:
@@ -248,6 +245,8 @@ This benchmark will:
 2. Run both models simultaneously in separate threads
 3. Calculate the bandwidth utilization factor to determine if parallel execution is efficient
 4. Show detailed performance analysis for individual and combined runs
+
+For detailed documentation and troubleshooting tips, see [Dual Model Benchmarking Guide](examples/DUAL_MODEL_BENCHMARKING.md).
 
 The bandwidth utilization factor indicates how efficiently the system can run multiple models in parallel compared to running them individually.
 
@@ -298,6 +297,15 @@ After running this command, all optimized models will be ready to use without ad
 Additional sync options:
 
 ```bash
+# Update meta.yalm file and download any missing/new models (recommended)
+python examples/sync_models.py --update
+
+# Download models in parallel for faster synchronization
+python examples/sync_models.py --parallel
+
+# Customize parallel download workers (default: 4)
+python examples/sync_models.py --parallel --workers 8
+
 # Force update of meta.yalm before syncing
 python examples/sync_models.py --force
 

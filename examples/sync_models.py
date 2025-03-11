@@ -17,6 +17,12 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="Synchronize ANEMLL-Bench platform models")
     parser.add_argument("--force", action="store_true", help="Force update of meta.yalm")
+    parser.add_argument("--update", action="store_true", 
+                        help="Update meta.yalm file and download any missing or new models (recommended)")
+    parser.add_argument("--parallel", action="store_true", 
+                        help="Download models in parallel for faster synchronization")
+    parser.add_argument("--workers", type=int, default=4, 
+                        help="Number of parallel download workers (default: 4)")
     parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode (less output)")
     args = parser.parse_args()
     
@@ -33,9 +39,16 @@ def main():
     
     logger.info(f"Running on macOS version category: {macos_version}")
     
+    # Use force_update if either --force or --update flag is specified
+    force_update = args.force or args.update
+    
     # Synchronize all platform models
     try:
-        results = sync_platform_models(force_update=args.force)
+        results = sync_platform_models(
+            force_update=force_update,
+            parallel=args.parallel,
+            max_workers=args.workers
+        )
         
         # Print summary
         print(f"\nSynchronization Summary:")
