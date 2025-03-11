@@ -13,7 +13,7 @@ ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.c
 
 ## 📊 [View Benchmark Results](./Results.MD) 📊
 
-[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250310_v1)](./Results.MD)
+[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250310_v3)](./Results.MD)
 
 Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M3, M4 series).
 
@@ -30,8 +30,8 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
       </tr>
       <tr>
         <td>
-          ✓ M1<br>
-          ✓ M1 PRO<br>
+          ✓ M1 ✅<br>
+          ✓ M1 PRO ✅<br>
           ✓ M1 MAX ✅<br>
           ✓ M1 ULTRA ✅
         </td>

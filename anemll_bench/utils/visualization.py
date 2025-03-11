@@ -90,7 +90,7 @@ def plot_chip_comparison(
             ax1.text(x_center, -0.08, bandwidth_factor[i],
                     ha='center', va='top',
                     transform=ax1.get_xaxis_transform(),
-                    fontsize=10, color='black')
+                    fontsize=8, color='black')
 
     # Annotate the inference factor labels if provided
     if inference_factor:
@@ -99,7 +99,7 @@ def plot_chip_comparison(
             ax2.text(x_center, -0.08, inference_factor[i],
                     ha='center', va='top',
                     transform=ax2.get_xaxis_transform(),
-                    fontsize=10, color='black')
+                    fontsize=8, color='black')
 
     # Check if any chip labels contain newlines and add more bottom padding if needed
     if any('\n' in chip for chip in chips):

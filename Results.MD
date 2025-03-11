@@ -20,7 +20,7 @@ Higher memory bandwidth and lower inference time indicate better performance.
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250310_v1)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20250310_v3)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
@@ -34,6 +34,8 @@ As shown in the visualization:
 
 | Chip | Memory Bandwidth (GB/s) | Inference Time (ms) | Bandwidth Factor | Inference Factor |
 |------|------------------------|---------------------|------------------|------------------|
+| M1 | 60.87 | 7.52 | 1.1x | 1.0x |
+| M1 Pro | 54.90 | 7.45 | 1.0x | 1.0x |
 | M1 Max | 54.62 | 7.61 | 1.0x | 1.0x |
 | M1 Ultra | 54.72 | 7.58 | 1.0x | 1.0x |
 | M2 | 60.45 | 8.67 | 1.1x | 0.9x |
@@ -47,7 +49,7 @@ As shown in the visualization:
 ### Key Observations
 
 1. **Neural Engine Scaling**:
-   - The M1 Ultra shows minimal performance gains over M1 Max, suggesting limited Neural Engine scaling in first-generation Apple Silicon
+   - All M1 variants (Pro, Max, Ultra) show very similar performance, suggesting limited Neural Engine scaling in first-generation Apple Silicon
    - Similar pattern with M2 Ultra vs M2 Max
    - The base M2 chip has slightly better bandwidth than M1 series, but surprisingly worse inference time
    - M3 Max shows excellent memory bandwidth utilization and very good inference times, competitive with M4 series
@@ -61,6 +63,8 @@ As shown in the visualization:
    - Entry-level M4 16GB shows ~1.2x improvement, suggesting memory configuration or thermal constraints may be factors
 
 3. **Inference Time Improvements**:
+   - Base M2 actually performs slightly worse (0.9x) than M1 series for inference time
+   - M2 Max/Ultra models show modest improvements (1.1x) over M1 series
    - M3 Max shows impressive inference performance (3.98 ms), nearly as fast as the best M4 chips
    - High-end M4 chips are only marginally faster (3.85-3.87 ms) than the M3 Max
    - This suggests the major architectural leap for Neural Engine inference performance occurred with the M3 generation
