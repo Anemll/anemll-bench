@@ -23,3 +23,4 @@ benchmark_*.html
 env-anemll-bench/*
 reports/plots_20250306_125822/throughput.png
 =8.2
+examples/upload_deephermes_model.py

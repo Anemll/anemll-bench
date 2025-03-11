@@ -79,7 +79,10 @@ def main():
             
             logger.info(f"Benchmark results for {model_name}:")
             logger.info(f"  - Inference time: {result.inference_time_ms:.2f} ms")
-            logger.info(f"  - TFLOPs: {result.tflops:.2f}")
+            if result.tflops is not None:
+                logger.info(f"  - TFLOPs: {result.tflops:.2f}")
+            else:
+                logger.info(f"  - TFLOPs: Not available")
             logger.info(f"  - Throughput: {result.throughput_gb_s:.2f} GB/s")
             
         except Exception as e:

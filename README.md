@@ -116,9 +116,11 @@ This will automatically download and prepare all the optimized models for your s
 After running benchmarks, check out the [benchmark results](./Results.MD) to see how your device compares to other Apple Silicon chips.
 
 ## Features
-- Benchmark models on Apple Neural Engine and compare with CPU/GPU performance
-- Measure inference time and memory bandwidth utilization (GB/s)
-- Download and convert models from Hugging Face to CoreML format
+- **Standard Benchmarking**: Measure individual model performance on Apple Neural Engine (ANE)
+- **Dual Model Benchmarking**: Run two models simultaneously to test bandwidth utilization and parallel processing efficiency
+- **Comprehensive Metrics**: Inference time, memory bandwidth utilization (GB/s), and more
+- **Platform-specific Models**: Pre-configured models optimized for different Apple Silicon chips
+- **Report Generation**: Generate detailed HTML reports with comparative visualizations
 - Automatically collect system information (Mac model, CPU details, memory)
 - Generate comprehensive HTML reports with visualizations
 - Upload and share reports via multiple services (GitHub Gist, JSONBin, Pastebin)
@@ -226,6 +228,28 @@ This will automatically:
 2. Benchmark each available model for your macOS version 
 3. Generate a comprehensive report with comparison metrics
 
+### Dual Model Benchmarking
+
+The new dual model benchmarking feature allows you to run two models simultaneously to measure potential bandwidth improvements:
+
+```bash
+# Run the dual model benchmark with default settings
+python examples/benchmark_dual_models.py
+
+# Customize the benchmark run
+python examples/benchmark_dual_models.py --runs 500 --backend ANE
+
+# Generate an HTML report of the results
+python examples/benchmark_dual_models.py --report dual_benchmark_results.html
+```
+
+This benchmark will:
+1. Run each model individually as a baseline
+2. Run both models simultaneously in separate threads
+3. Calculate the bandwidth utilization factor to determine if parallel execution is efficient
+4. Show detailed performance analysis for individual and combined runs
+
+The bandwidth utilization factor indicates how efficiently the system can run multiple models in parallel compared to running them individually.
 
 ### Checking for Online Model Updates
 
