@@ -4,7 +4,7 @@
 
 This alpha release requires macOS 15. We plan to update support for older OS versions in the next update.
 
-## 🆕 New: Enhanced Testing for Pro & Ultra Models
+## 🆕 New: Enhanced Testing for Ultra Models
 
 If you're running on a high-performance Apple chip (Ultra or Pro variants), we strongly recommend running the dual model benchmark to properly evaluate the enhanced ANE capabilities:
 
