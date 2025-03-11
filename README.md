@@ -4,6 +4,29 @@
 
 This alpha release requires macOS 15. We plan to update support for older OS versions in the next update.
 
+## 🆕 New: Enhanced Testing for Pro & Ultra Models
+
+If you're running on a high-performance Apple chip (Ultra or Pro variants), we strongly recommend running the dual model benchmark to properly evaluate the enhanced ANE capabilities:
+
+```bash
+
+# Update meta.yalm file and download new models
+python examples/sync_models.py --update
+
+# For Ultra models (M1/M2/M3 Ultra) and M4 Pro/Max models
+python examples/benchmark_dual_models.py --runs 300
+```
+
+### Automatic Testing Recommendation
+
+The tool will automatically detect your CPU model and provide testing recommendations:
+
+- If running on **M1/M2/M3 Ultra**: Dual model testing is essential to evaluate the dual ANE clusters
+- If running on **M4 Pro/Max**: Dual model testing is recommended to evaluate enhanced ANE performance
+- For other models: Standard benchmarking is sufficient, but dual testing provides additional insights
+
+When you run `benchmark_all_models.py`, you'll see a recommendation to run the dual test if your system would benefit from it:
+
 ## Overview
 ANEMLL-Bench  (pronounced like "animal-bench") is a benchmarking tool specifically designed to measure and evaluate the performance of machine learning models on Apple's Neural Engine (ANE). It provides comprehensive metrics including inference time and memory bandwidth utilization (GB/s) to help researchers and developers optimize their models for Apple Silicon.
 
@@ -148,10 +171,13 @@ cd ..
 pip install -e .
 
 #download models
-python examples/sync_models.py
+python examples/sync_models.py  --update 
 
 #run benchmarks
 python examples/benchmark_all_models.py
+
+# for Ultra Modles please also run/share Dual-model run to profile 2xANE clusters
+ python examples/benchmark_dual_models.py
 
 ```
 
