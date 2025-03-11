@@ -4,6 +4,29 @@
 
 This alpha release requires macOS 15. We plan to update support for older OS versions in the next update.
 
+## 🆕 New: Enhanced Testing for Pro & Ultra Models
+
+If you're running on a high-performance Apple chip (Ultra or Pro variants), we strongly recommend running the dual model benchmark to properly evaluate the enhanced ANE capabilities:
+
+```bash
+
+# Update meta.yalm file and download new models
+python examples/sync_models.py --update
+
+# For Ultra models (M1/M2/M3 Ultra) and M4 Pro/Max models
+python examples/benchmark_dual_models.py --runs 300
+```
+
+### Automatic Testing Recommendation
+
+The tool will automatically detect your CPU model and provide testing recommendations:
+
+- If running on **M1/M2/M3 Ultra**: Dual model testing is essential to evaluate the dual ANE clusters
+- If running on **M4 Pro/Max**: Dual model testing is recommended to evaluate enhanced ANE performance
+- For other models: Standard benchmarking is sufficient, but dual testing provides additional insights
+
+When you run `benchmark_all_models.py`, you'll see a recommendation to run the dual test if your system would benefit from it:
+
 ## Overview
 ANEMLL-Bench  (pronounced like "animal-bench") is a benchmarking tool specifically designed to measure and evaluate the performance of machine learning models on Apple's Neural Engine (ANE). It provides comprehensive metrics including inference time and memory bandwidth utilization (GB/s) to help researchers and developers optimize their models for Apple Silicon.
 
@@ -101,11 +124,8 @@ pip install -e .
 # Download all optimized models for your macOS version
 python examples/sync_models.py
 
-# Benchmark all available models and generate a report
-python examples/benchmark_all_models.py
-
-# Run a benchmark with a specific pre-optimized model
-python examples/load_platform_models.py --model llama_lm_head
+# Update meta.yalm file and download any missing/new models
+python examples/sync_models.py --update
 
 # Use existing local models without checking online (prevents downloads)
 python examples/benchmark_all_models.py --use-local --no-sync
@@ -116,9 +136,11 @@ This will automatically download and prepare all the optimized models for your s
 After running benchmarks, check out the [benchmark results](./Results.MD) to see how your device compares to other Apple Silicon chips.
 
 ## Features
-- Benchmark models on Apple Neural Engine and compare with CPU/GPU performance
-- Measure inference time and memory bandwidth utilization (GB/s)
-- Download and convert models from Hugging Face to CoreML format
+- **Standard Benchmarking**: Measure individual model performance on Apple Neural Engine (ANE)
+- **Dual Model Benchmarking**: Run two models simultaneously to test bandwidth utilization and parallel processing efficiency
+- **Comprehensive Metrics**: Inference time, memory bandwidth utilization (GB/s), and more
+- **Platform-specific Models**: Pre-configured models optimized for different Apple Silicon chips
+- **Report Generation**: Generate detailed HTML reports with comparative visualizations
 - Automatically collect system information (Mac model, CPU details, memory)
 - Generate comprehensive HTML reports with visualizations
 - Upload and share reports via multiple services (GitHub Gist, JSONBin, Pastebin)
@@ -149,10 +171,13 @@ cd ..
 pip install -e .
 
 #download models
-python examples/sync_models.py
+python examples/sync_models.py  --update 
 
 #run benchmarks
 python examples/benchmark_all_models.py
+
+# for Ultra Modles please also run/share Dual-model run to profile 2xANE clusters
+ python examples/benchmark_dual_models.py
 
 ```
 
@@ -226,6 +251,30 @@ This will automatically:
 2. Benchmark each available model for your macOS version 
 3. Generate a comprehensive report with comparison metrics
 
+### Dual Model Benchmarking
+
+The dual model benchmarking feature allows you to run two models simultaneously to measure potential bandwidth improvements:
+
+```bash
+# First time setup: ensure you have all required models
+python examples/update_dual_benchmark.py
+
+# Run the dual model benchmark with default settings
+python examples/benchmark_dual_models.py
+
+# Customize the benchmark run
+python examples/benchmark_dual_models.py --runs 500 --backend ANE
+```
+
+This benchmark will:
+1. Run each model individually as a baseline
+2. Run both models simultaneously in separate threads
+3. Calculate the bandwidth utilization factor to determine if parallel execution is efficient
+4. Show detailed performance analysis for individual and combined runs
+
+For detailed documentation and troubleshooting tips, see [Dual Model Benchmarking Guide](examples/DUAL_MODEL_BENCHMARKING.md).
+
+The bandwidth utilization factor indicates how efficiently the system can run multiple models in parallel compared to running them individually.
 
 ### Checking for Online Model Updates
 
@@ -274,6 +323,15 @@ After running this command, all optimized models will be ready to use without ad
 Additional sync options:
 
 ```bash
+# Update meta.yalm file and download any missing/new models (recommended)
+python examples/sync_models.py --update
+
+# Download models in parallel for faster synchronization
+python examples/sync_models.py --parallel
+
+# Customize parallel download workers (default: 4)
+python examples/sync_models.py --parallel --workers 8
+
 # Force update of meta.yalm before syncing
 python examples/sync_models.py --force
 

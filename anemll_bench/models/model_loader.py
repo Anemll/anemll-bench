@@ -14,6 +14,7 @@ import zipfile
 import io
 import logging
 import pathlib
+import concurrent.futures
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -1053,7 +1054,7 @@ def clear_cache(include_meta: bool = False, model_name: Optional[str] = None) ->
         logger.error(f"Error clearing cache: {e}")
         return False 
 
-def sync_platform_models(force_update: bool = False) -> Dict[str, Any]:
+def sync_platform_models(force_update: bool = False, parallel: bool = False, max_workers: int = 4) -> Dict[str, Any]:
     """
     Synchronize platform models with Hugging Face repository.
     
@@ -1064,6 +1065,8 @@ def sync_platform_models(force_update: bool = False) -> Dict[str, Any]:
     
     Args:
         force_update: If True, download meta.yalm even if it exists locally
+        parallel: If True, download models in parallel using ThreadPoolExecutor
+        max_workers: Maximum number of parallel download workers (default: 4)
         
     Returns:
         Dictionary with synchronization results
@@ -1099,53 +1102,118 @@ def sync_platform_models(force_update: bool = False) -> Dict[str, Any]:
     
     platform_models = meta_data['model_info'][macos_version]
     
+    # Helper function to process a single model
+    def process_model(model):
+        model_result = {
+            "name": model.get("name", "unknown"),
+            "type": model.get("type", "unknown"),
+            "path": "",
+            "action": "none"
+        }
+        
+        try:
+            model_name = model.get("name")
+            model_type = model.get("type")
+            model_url = model.get("url")
+            
+            if not model_name or not model_type or not model_url:
+                logger.warning(f"Incomplete model definition: {model}")
+                model_result["action"] = "error"
+                model_result["error"] = "Incomplete model definition"
+                return model_result
+            
+            # Check if model exists
+            model_dir = os.path.join(MODELS_CACHE_DIR, f"{model_name}.{model_type}")
+            model_result["path"] = model_dir
+            
+            if os.path.exists(model_dir):
+                logger.info(f"Model already exists: {model_name}")
+                model_result["action"] = "skipped"
+                return model_result
+            else:
+                # Download and unzip the model
+                logger.info(f"Downloading model: {model_name}")
+                downloaded_path = download_and_unzip_model(model_url, model_name, model_type, allow_redownload=True)
+                if downloaded_path:
+                    logger.info(f"Successfully downloaded and extracted: {model_name}")
+                    model_result["action"] = "downloaded"
+                    model_result["path"] = downloaded_path
+                    return model_result
+                else:
+                    logger.error(f"Failed to download or extract: {model_name}")
+                    model_result["action"] = "failed"
+                    return model_result
+        except Exception as e:
+            logger.error(f"Error processing model {model.get('name', 'unknown')}: {e}")
+            model_result["action"] = "error"
+            model_result["error"] = str(e)
+            return model_result
+    
     # Step 3: Check and download each model
+    models_to_download = []
+    
+    # First pass - check which models we need to download
     for model in platform_models:
         results["models_checked"] += 1
         
         model_name = model.get("name")
         model_type = model.get("type")
-        model_url = model.get("url")
         
-        if not model_name or not model_type or not model_url:
+        if not model_name or not model_type:
             logger.warning(f"Incomplete model definition: {model}")
             results["models_failed"] += 1
             continue
         
         # Check if model exists
         model_dir = os.path.join(MODELS_CACHE_DIR, f"{model_name}.{model_type}")
-        model_result = {
-            "name": model_name,
-            "type": model_type,
-            "path": model_dir,
-            "action": "none"
-        }
         
         if os.path.exists(model_dir):
             logger.info(f"Model already exists: {model_name}")
             results["models_skipped"] += 1
-            model_result["action"] = "skipped"
+            results["models"].append({
+                "name": model_name,
+                "type": model_type,
+                "path": model_dir,
+                "action": "skipped"
+            })
         else:
-            # Download and unzip the model
-            logger.info(f"Downloading model: {model_name}")
-            try:
-                downloaded_path = download_and_unzip_model(model_url, model_name, model_type, allow_redownload=True)
-                if downloaded_path:
-                    logger.info(f"Successfully downloaded and extracted: {model_name}")
+            # Add to the list of models to download
+            models_to_download.append(model)
+    
+    # Second pass - download models (in parallel if requested)
+    if models_to_download:
+        if parallel and len(models_to_download) > 1:
+            logger.info(f"Downloading {len(models_to_download)} models in parallel with {max_workers} workers")
+            
+            # Use ThreadPoolExecutor for parallel downloads
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Start the download operations and mark each future with its model
+                future_to_model = {executor.submit(process_model, model): model for model in models_to_download}
+                
+                # Process results as they complete
+                for future in concurrent.futures.as_completed(future_to_model):
+                    try:
+                        model_result = future.result()
+                        results["models"].append(model_result)
+                        
+                        if model_result["action"] == "downloaded":
+                            results["models_downloaded"] += 1
+                        elif model_result["action"] in ["failed", "error"]:
+                            results["models_failed"] += 1
+                    except Exception as e:
+                        logger.error(f"Exception during parallel model download: {e}")
+                        results["models_failed"] += 1
+        else:
+            # Download models sequentially
+            logger.info(f"Downloading {len(models_to_download)} models sequentially")
+            for model in models_to_download:
+                model_result = process_model(model)
+                results["models"].append(model_result)
+                
+                if model_result["action"] == "downloaded":
                     results["models_downloaded"] += 1
-                    model_result["action"] = "downloaded"
-                    model_result["path"] = downloaded_path
-                else:
-                    logger.error(f"Failed to download or extract: {model_name}")
+                elif model_result["action"] in ["failed", "error"]:
                     results["models_failed"] += 1
-                    model_result["action"] = "failed"
-            except Exception as e:
-                logger.error(f"Error processing model {model_name}: {e}")
-                results["models_failed"] += 1
-                model_result["action"] = "error"
-                model_result["error"] = str(e)
-        
-        results["models"].append(model_result)
     
     # Summary
     logger.info(f"Synchronization complete: {results['models_checked']} models checked, "

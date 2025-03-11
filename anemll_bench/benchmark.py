@@ -914,4 +914,317 @@ class Benchmark:
         Args:
             result: The BenchmarkResult to add
         """
-        self.results.append(result) 
+        self.results.append(result)
+
+    def benchmark_dual_models(
+        self,
+        model1,
+        model1_name: str,
+        model1_input_shape: List[int],
+        model2,
+        model2_name: str,
+        model2_input_shape: List[int],
+        backend: str = 'ANE',
+        num_runs: int = 300,
+        model1_input_name: str = None,
+        model2_input_name: str = None
+    ):
+        """
+        Benchmark two different models simultaneously to measure potential bandwidth improvements.
+        
+        This function:
+        1. First runs each model individually to get baseline performance
+        2. Then runs both models simultaneously in separate threads
+        3. Compares the performance to identify bandwidth changes
+        
+        Args:
+            model1: First model to benchmark
+            model1_name: Name of the first model
+            model1_input_shape: Input shape for the first model
+            model2: Second model to benchmark
+            model2_name: Name of the second model
+            model2_input_shape: Input shape for the second model
+            backend: Backend to use ('CPU', 'GPU', 'ANE')
+            num_runs: Number of runs for each benchmark (default: 300)
+            model1_input_name: Input tensor name for model1 (default: None - auto-detect)
+            model2_input_name: Input tensor name for model2 (default: None - auto-detect)
+            
+        Returns:
+            Dict containing individual and combined benchmark results along with performance analysis
+        """
+        import threading
+        import queue
+        import numpy as np
+        import coremltools as ct
+        
+        print(f"Starting dual model benchmark with {model1_name} and {model2_name}")
+        
+        # First benchmark each model individually for baseline
+        print(f"\n=== Individual Benchmark: {model1_name} ===")
+        result1 = self.benchmark_model(
+            model=model1,
+            model_name=model1_name,
+            input_shape=model1_input_shape,
+            backend=backend,
+            num_runs=num_runs,
+            input_name=model1_input_name
+        )
+        
+        print(f"\n=== Individual Benchmark: {model2_name} ===")
+        result2 = self.benchmark_model(
+            model=model2,
+            model_name=model2_name,
+            input_shape=model2_input_shape,
+            backend=backend,
+            num_runs=num_runs,
+            input_name=model2_input_name
+        )
+        
+        # Map backend to compute units for setup
+        compute_units_map = {
+            "CPU": ct.ComputeUnit.CPU_ONLY,
+            "GPU": ct.ComputeUnit.CPU_AND_GPU,
+            "ANE": ct.ComputeUnit.CPU_AND_NE,
+            "ALL": ct.ComputeUnit.ALL
+        }
+        compute_unit = compute_units_map.get(backend, ct.ComputeUnit.CPU_AND_NE)
+        
+        # Set compute unit for models if supported
+        for model, name in [(model1, model1_name), (model2, model2_name)]:
+            if hasattr(model, 'compute_unit'):
+                model.compute_unit = compute_unit
+                
+        # Prepare input data for both models
+        input_data1 = np.random.rand(*model1_input_shape).astype(np.float32)
+        input_data2 = np.random.rand(*model2_input_shape).astype(np.float32)
+        
+        # Determine input names if not provided
+        if model1_input_name is None:
+            try:
+                spec = model1.get_spec().description.input
+                if spec and len(spec) > 0:
+                    model1_input_name = spec[0].name
+                else:
+                    model1_input_name = "input_ids"
+            except:
+                model1_input_name = "input_ids"
+        
+        if model2_input_name is None:
+            try:
+                spec = model2.get_spec().description.input
+                if spec and len(spec) > 0:
+                    model2_input_name = spec[0].name
+                else:
+                    model2_input_name = "input_ids"
+            except:
+                model2_input_name = "input_ids"
+                
+        # Create input dictionaries
+        inputs1 = {model1_input_name: input_data1}
+        inputs2 = {model2_input_name: input_data2}
+        
+        # Warmup both models
+        print(f"Warming up both models...")
+        for _ in range(5):
+            _ = model1.predict(inputs1)
+            _ = model2.predict(inputs2)
+            
+        # Now run both models in parallel
+        print(f"\n=== Parallel Benchmark: Running {model1_name} and {model2_name} simultaneously ===")
+        
+        # Create queues to capture results
+        result_queue1 = queue.Queue()
+        result_queue2 = queue.Queue()
+        
+        # Define worker functions
+        def run_model1():
+            start_time = time.time()
+            for i in range(num_runs):
+                _ = model1.predict(inputs1)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            inference_time_ms = (elapsed_time * 1000) / num_runs
+            result_queue1.put({
+                'elapsed_time': elapsed_time,
+                'inference_time_ms': inference_time_ms,
+                'iterations': num_runs
+            })
+            
+        def run_model2():
+            start_time = time.time()
+            for i in range(num_runs):
+                _ = model2.predict(inputs2)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            inference_time_ms = (elapsed_time * 1000) / num_runs
+            result_queue2.put({
+                'elapsed_time': elapsed_time,
+                'inference_time_ms': inference_time_ms,
+                'iterations': num_runs
+            })
+            
+        # Create and start threads
+        thread1 = threading.Thread(target=run_model1)
+        thread2 = threading.Thread(target=run_model2)
+        
+        parallel_start_time = time.time()
+        thread1.start()
+        thread2.start()
+        
+        # Wait for both threads to complete
+        thread1.join()
+        thread2.join()
+        parallel_end_time = time.time()
+        
+        # Get results from queues
+        parallel_result1 = result_queue1.get()
+        parallel_result2 = result_queue2.get()
+        
+        # Calculate the actual total elapsed time for parallel execution
+        parallel_total_time = parallel_end_time - parallel_start_time
+        
+        # Calculate metrics for parallel runs
+        model1_size_bytes = self._get_model_size_bytes(model1)
+        model2_size_bytes = self._get_model_size_bytes(model2)
+        
+        # Calculate individual and combined throughputs
+        parallel_throughput1_gb_s = self._calculate_throughput(model1_size_bytes, parallel_result1['inference_time_ms'])
+        parallel_throughput2_gb_s = self._calculate_throughput(model2_size_bytes, parallel_result2['inference_time_ms'])
+        
+        # Combined throughput is the sum of data processed divided by the parallel execution time
+        model1_total_data_gb = (model1_size_bytes / 1e9) * num_runs
+        model2_total_data_gb = (model2_size_bytes / 1e9) * num_runs
+        combined_throughput_gb_s = (model1_total_data_gb + model2_total_data_gb) / (parallel_total_time)
+        
+        # Calculate bandwidth utilization factor
+        # (Compare sum of individual throughputs to the combined throughput)
+        individual_throughput_sum = result1.throughput_gb_s + result2.throughput_gb_s
+        bandwidth_utilization = combined_throughput_gb_s / individual_throughput_sum if individual_throughput_sum > 0 else 0
+        
+        # Create parallel BenchmarkResult objects
+        from .models.benchmark_result import BenchmarkResult
+        
+        parallel_result1_obj = BenchmarkResult(
+            model_name=f"{model1_name} (Parallel Run)",
+            backend=backend,
+            inference_time_ms=parallel_result1['inference_time_ms'],
+            tflops=None,
+            throughput_gb_s=parallel_throughput1_gb_s,
+            input_shape=model1_input_shape,
+            params_count=0,
+            memory_used_mb=0.0,
+            system_info=self.system_info,
+            model_size_mb=model1_size_bytes / 1e6,
+            notes="Run simultaneously with another model"
+        )
+        
+        parallel_result2_obj = BenchmarkResult(
+            model_name=f"{model2_name} (Parallel Run)",
+            backend=backend,
+            inference_time_ms=parallel_result2['inference_time_ms'],
+            tflops=None,
+            throughput_gb_s=parallel_throughput2_gb_s,
+            input_shape=model2_input_shape,
+            params_count=0,
+            memory_used_mb=0.0,
+            system_info=self.system_info,
+            model_size_mb=model2_size_bytes / 1e6,
+            notes="Run simultaneously with another model"
+        )
+        
+        # Add results to history
+        self._add_result_to_history(parallel_result1_obj)
+        self._add_result_to_history(parallel_result2_obj)
+        
+        # Calculate average metrics for parallel runs
+        avg_inference_time_ms = (parallel_result1['inference_time_ms'] + parallel_result2['inference_time_ms']) / 2
+        avg_throughput_gb_s = (parallel_throughput1_gb_s + parallel_throughput2_gb_s) / 2
+        
+        # Create and add a combined result object to the history
+        # For combined throughput, we use the total data processed by both models divided by the total time
+        # For time, we use the max time of both models since they run in parallel
+        max_parallel_time_ms = max(parallel_result1['inference_time_ms'], parallel_result2['inference_time_ms'])
+        combined_result_obj = BenchmarkResult(
+            model_name=f"Combined ({model1_name} + {model2_name})",
+            backend=backend,
+            inference_time_ms=max_parallel_time_ms,  # Use max time since models run in parallel
+            tflops=None,
+            throughput_gb_s=combined_throughput_gb_s,  # Use the combined throughput we calculated earlier
+            input_shape=[],  # Not applicable for combined
+            params_count=0,
+            memory_used_mb=0.0,
+            system_info=self.system_info,
+            model_size_mb=(model1_size_bytes + model2_size_bytes) / 1e6,  # Combined size
+            notes="Combined performance of both models running simultaneously"
+        )
+        self._add_result_to_history(combined_result_obj)
+        
+        # Prepare the performance summary
+        performance_summary = {
+            'individual_results': {
+                model1_name: {
+                    'inference_time_ms': result1.inference_time_ms,
+                    'throughput_gb_s': result1.throughput_gb_s,
+                    'model_size_mb': model1_size_bytes / 1e6
+                },
+                model2_name: {
+                    'inference_time_ms': result2.inference_time_ms,
+                    'throughput_gb_s': result2.throughput_gb_s,
+                    'model_size_mb': model2_size_bytes / 1e6
+                }
+            },
+            'parallel_results': {
+                model1_name: {
+                    'inference_time_ms': parallel_result1['inference_time_ms'],
+                    'throughput_gb_s': parallel_throughput1_gb_s,
+                    'slowdown_factor': parallel_result1['inference_time_ms'] / result1.inference_time_ms
+                },
+                model2_name: {
+                    'inference_time_ms': parallel_result2['inference_time_ms'],
+                    'throughput_gb_s': parallel_throughput2_gb_s,
+                    'slowdown_factor': parallel_result2['inference_time_ms'] / result2.inference_time_ms
+                },
+                'average': {
+                    'inference_time_ms': avg_inference_time_ms,
+                    'throughput_gb_s': avg_throughput_gb_s
+                }
+            },
+            'combined': {
+                'total_parallel_time_s': parallel_total_time,
+                'combined_throughput_gb_s': combined_throughput_gb_s,
+                'individual_throughput_sum_gb_s': individual_throughput_sum,
+                'bandwidth_utilization_factor': bandwidth_utilization,
+                'efficiency': bandwidth_utilization * 100  # as percentage
+            }
+        }
+        
+        # Print detailed performance report
+        print("\n=== Dual Model Benchmark Results ===")
+        print(f"\nIndividual Performance:")
+        print(f"  - {model1_name}: {result1.inference_time_ms:.2f} ms, {result1.throughput_gb_s:.2f} GB/s")
+        print(f"  - {model2_name}: {result2.inference_time_ms:.2f} ms, {result2.throughput_gb_s:.2f} GB/s")
+        
+        print(f"\nParallel Performance:")
+        print(f"  - {model1_name}: {parallel_result1['inference_time_ms']:.2f} ms, {parallel_throughput1_gb_s:.2f} GB/s")
+        print(f"  - {model2_name}: {parallel_result2['inference_time_ms']:.2f} ms, {parallel_throughput2_gb_s:.2f} GB/s")
+        print(f"  - Combined: {max_parallel_time_ms:.2f} ms, {combined_throughput_gb_s:.2f} GB/s (total throughput)")
+        
+        print(f"\nCombined Analysis:")
+        print(f"  - Total Parallel Execution Time: {parallel_total_time:.2f} seconds")
+        print(f"  - Combined Throughput: {combined_throughput_gb_s:.2f} GB/s")
+        print(f"  - Sum of Individual Throughputs: {individual_throughput_sum:.2f} GB/s")
+        print(f"  - Bandwidth Utilization Factor: {bandwidth_utilization:.2f}x")
+        print(f"  - Efficiency: {bandwidth_utilization * 100:.2f}%")
+        
+        if bandwidth_utilization > 0.9:
+            print("\nConclusion: High bandwidth utilization detected! Running models in parallel is efficient.")
+        elif bandwidth_utilization > 0.7:
+            print("\nConclusion: Good bandwidth utilization. Parallel execution provides moderate benefits.")
+        else:
+            print("\nConclusion: Low bandwidth utilization. Models might be competing for resources.")
+            
+        return {
+            'individual_results': [result1, result2],
+            'parallel_results': [parallel_result1_obj, parallel_result2_obj, combined_result_obj],
+            'performance_summary': performance_summary
+        } 
