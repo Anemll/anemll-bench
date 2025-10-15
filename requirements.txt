@@ -1,13 +1,13 @@
 # ✅ Core Dependencies (required)
 # NOTE: ANEMLL is designed to work with Python 3.9.x
 # For Apple Silicon Macs, torch must be installed separately with:
-# - For Python 3.9: pip install torch==2.5.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
-# - For Python >= 3.13: pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
-# The install_dependencies.sh script will handle this automatically
-torch>=2.5.0        # Deep learning framework
+# - For Python 3.9–3.12 (macOS Sequoia): pip install "torch>=2.5,<2.6" torchvision torchaudio
+# - For Python 3.13: consider skipping torch or using nightly wheels manually
+# Torch is intentionally NOT installed here; install_dependencies.sh or manual install should handle it
 coremltools>=8.2    # Required for Apple Neural Engine support
 transformers>=4.36.0  # Hugging Face Transformers library
-numpy>=1.24.0       # Required for array operations
+# NumPy 2.x breaks some compiled deps on py3.9; prefer <2 for stability
+numpy<2             # Required for array operations
 pandas>=2.0.0       # Required for data processing and report generation
 matplotlib>=3.5.0   # Required for visualization and report charts
 seaborn>=0.12.0     # Enhanced statistical data visualization

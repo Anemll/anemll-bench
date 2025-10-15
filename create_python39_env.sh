@@ -1,13 +1,33 @@
 #!/bin/bash
 
-# Set the path to Python 3.9 from Homebrew
-PYTHON39_PATH="/opt/homebrew/opt/python@3.9/bin/python3.9"
+# Resolve Python 3.9 from Homebrew dynamically (handles keg-only installs)
+if command -v brew >/dev/null 2>&1; then
+    BREW_PREFIX=$(brew --prefix python@3.9 2>/dev/null)
+    if [ -n "$BREW_PREFIX" ] && [ -x "$BREW_PREFIX/bin/python3.9" ]; then
+        PYTHON39_PATH="$BREW_PREFIX/bin/python3.9"
+    fi
+fi
+
+# Fallbacks for common Homebrew prefixes (Apple Silicon and Intel)
+if [ -z "$PYTHON39_PATH" ]; then
+    if [ -x "/opt/homebrew/opt/python@3.9/bin/python3.9" ]; then
+        PYTHON39_PATH="/opt/homebrew/opt/python@3.9/bin/python3.9"
+    elif [ -x "/usr/local/opt/python@3.9/bin/python3.9" ]; then
+        PYTHON39_PATH="/usr/local/opt/python@3.9/bin/python3.9"
+    fi
+fi
+
+# Final fallback: any python3.9 on PATH
+if [ -z "$PYTHON39_PATH" ] && command -v python3.9 >/dev/null 2>&1; then
+    PYTHON39_PATH="$(command -v python3.9)"
+fi
 
 # Check if Python 3.9 is installed
-if [ ! -f "$PYTHON39_PATH" ]; then
-    echo "Python 3.9 is not found at $PYTHON39_PATH"
+if [ -z "$PYTHON39_PATH" ] || [ ! -x "$PYTHON39_PATH" ]; then
+    echo "Python 3.9 was not found."
     echo "Please install it using:"
     echo "  brew install python@3.9"
+    echo "If already installed (keg-only), it will live at: \"$(brew --prefix python@3.9 2>/dev/null)/bin/python3.9\""
     exit 1
 fi
 

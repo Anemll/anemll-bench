@@ -25,11 +25,11 @@ def main():
     args = parser.parse_args()
 
     # Sample data from llama_lm_head model benchmarks
-    chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Max', 'M2 Ultra', 'M3 Max', 'M4\n16GB MBP', 'M4 Pro\n24GB Mini', 'M4 Max']
-    bandwidth = [60.87, 54.90, 54.62, 54.72, 60.45, 62.01, 61.68, 120.22, 64.18, 126.36, 118.88]  # GB/s (llama_lm_head)
-    inference = [7.52, 7.45, 7.61, 7.58, 8.67, 6.64, 6.70, 3.98, 6.45, 3.85, 3.87]           # ms (llama_lm_head_lut6)
-    bandwidth_factor = ['1.1x', '1.0x', '1.0x', '1.0x', '1.1x', '1.1x', '1.1x', '2.2x', '1.2x', '2.3x', '2.2x']
-    inference_factor = ['1.0x', '1.0x', '1.0x', '1.0x', '0.9x', '1.1x', '1.1x', '1.9x', '1.2x', '2.0x', '2.0x']
+    chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Max', 'M2 Ultra', 'M3', 'M3 Max', 'M4\n16GB MBP', 'M4 Pro\n24GB Mini', 'M4 Max']
+    bandwidth = [60.87, 54.90, 54.62, 54.72, 60.45, 62.01, 61.68, 63.10, 120.22, 64.18, 126.36, 118.88]  # GB/s (llama_lm_head)
+    inference = [7.52, 7.45, 7.61, 7.58, 8.67, 6.64, 6.70, 6.85, 3.98, 6.45, 3.85, 3.87]           # ms (llama_lm_head_lut6 for M3 base)
+    bandwidth_factor = ['1.1x', '1.0x', '1.0x', '1.0x', '1.1x', '1.1x', '1.1x', '1.1x', '2.2x', '1.2x', '2.3x', '2.2x']
+    inference_factor = ['1.0x', '1.0x', '1.0x', '1.0x', '0.9x', '1.1x', '1.1x', '1.1x', '1.9x', '1.2x', '2.0x', '2.0x']
 
     # Option 1: Use plot_chip_comparison directly
     print("Demonstrating direct use of plot_chip_comparison function...\n")
