@@ -1,7 +1,6 @@
-torch>=2.5.0
 coremltools>=8.2
 transformers>=4.36.0
-numpy>=1.24.0
+numpy<2
 pandas>=2.0.0
 matplotlib>=3.5.0
 seaborn>=0.12.0

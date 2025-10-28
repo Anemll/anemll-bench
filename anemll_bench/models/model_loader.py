@@ -642,7 +642,7 @@ def load_core_ml_model(model_path: str) -> Any:
     try:
         # Standard approach
         logger.info(f"Trying standard loading approach for {model_path}")
-        model = ct.models.MLModel(model_path)
+        model = ct.models.MLModel(model_path, compute_units=ct.ComputeUnit.CPU_AND_NE)
         logger.info(f"Successfully loaded model with standard approach")
         return model
     except Exception as e1:
