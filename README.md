@@ -101,39 +101,202 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
 - **Issue with Python 3.13+**: PyTorch 2.5.0 is not available for Python 3.13+
 - **Workaround for Python 3.13+**: Use PyTorch 2.6.0, but expect potential compatibility issues with coremltools
 
-## Additional Requirements
+## Requirements
 
-- macOS with Apple Silicon
+- **macOS with Apple Silicon (ARM64)** - ANE is not available on Intel Macs
 - Xcode Command Line Tools installed
-- Homebrew (for installing Python 3.9)
+- Native ARM64 Homebrew (for installing Python 3.9)
 
 ## Quick Start
 
-To get started quickly with platform-specific optimized models:
+### ⚠️ Critical: ARM64 Setup Required
+
+**ANE (Apple Neural Engine) is ONLY available on Apple Silicon (ARM64) Macs. You MUST use native ARM64 Python to access ANE hardware.**
+
+#### Option 1: Use Native ARM64 Homebrew (Recommended)
 
 ```bash
-# Create a virtual environment
-python -m venv env-anemll-bench
+# Install native ARM64 Python via Homebrew
+/opt/homebrew/bin/brew install python@3.9
+
+# Create virtual environment with native Python
+/opt/homebrew/opt/python@3.9/bin/python3.9 -m venv env-anemll-bench
 
 source env-anemll-bench/bin/activate
 
 pip install -r requirements.txt
-
 pip install -e .
+```
 
-# Download all optimized models for your macOS version
+#### Option 2: Use System Python (Already ARM64)
+
+```bash
+# Use system Python (already native ARM64)
+/usr/bin/python3 -m venv env-anemll-bench
+
+source env-anemll-bench/bin/activate
+
+pip install -r requirements.txt
+pip install -e .
+```
+
+#### Option 3: Use Setup Script (ARM64-First)
+
+```bash
+# Run the ARM64-optimized setup script
+./create_python39_env.sh
+
+# Then activate and install dependencies
+source env-anemll-bench/bin/activate
+cd env-anemll-bench
+./install_dependencies.sh
+```
+
+**Note**: The setup script now prioritizes native ARM64 Homebrew and will warn you if it detects x86_64 Python on Apple Silicon.
+
+### 🚨 Common Issue: x86_64 Python Under Rosetta
+
+**If you see "ANE Hardware Available: False" in diagnostics, you're using x86_64 Python under Rosetta.**
+
+**Symptoms:**
+- `python -c "import platform; print(platform.machine())"` returns `x86_64`
+- ANE diagnostic shows "Not running on Apple Silicon (arm64)"
+- Models run slowly (CPU-only performance)
+- Benchmark times are much slower than expected
+
+**Solution:** Rebuild your environment using one of the ARM64 options above.
+
+**Why this happens:** Even on Apple Silicon Macs, if you install Python via the default Homebrew (which may be x86_64), Python runs under Rosetta translation and cannot access ANE hardware.
+
+### Running Benchmarks
+
+**Important**: ANEMLL-Bench only works with platform-specific ANEMLL models, not generic Hugging Face models.
+
+After setting up with native ARM64 Python:
+
+```bash
+# Download all optimized ANEMLL models for your macOS version
 python examples/sync_models.py
 
-# Update meta.yalm file and download any missing/new models
+# Update meta.yaml file and download any missing/new models
 python examples/sync_models.py --update
 
-# Use existing local models without checking online (prevents downloads)
+# Benchmark all available ANEMLL models (default behavior)
 python examples/benchmark_all_models.py --use-local --no-sync
+
+# Benchmark a specific ANEMLL model (optional)
+python examples/benchmark_all_models.py --model llama_lm_head --use-local --no-sync
 ```
+
+**Available ANEMLL Models:**
+- `llama_lm_head` - Llama language model head (ANE-optimized)
+- `llama_lm_head_lut6` - Llama model with 6-bit LUT quantization (smaller, faster)
+- `DeepHermes_lm_head` - DeepHermes language model head (ANE-optimized)
+
+**❌ Don't use**: Generic Hugging Face models (like `microsoft/DialoGPT-small`) - these are not ANEMLL-optimized and won't work properly with ANE.
+
+### Model Types Explained
+
+**ANEMLL Models** (✅ Recommended):
+- ANEMLL-optimized models hosted on Hugging Face
+- Pre-converted CoreML models optimized for Apple Neural Engine
+- ML Programs with ANE-specific optimizations
+- Fast inference times (7-20ms)
+- High throughput (50+ GB/s)
+
+**Generic Hugging Face Models** (❌ Not Recommended):
+- Raw PyTorch models that need conversion
+- Not optimized for ANE hardware
+- Slow inference times (100-500ms)
+- Low throughput (CPU-only performance)
 
 This will automatically download and prepare all the optimized models for your specific macOS version. The models are stored in `~/.cache/anemll-bench/` and are ready to use immediately.
 
 After running benchmarks, check out the [benchmark results](./Results.MD) to see how your device compares to other Apple Silicon chips.
+
+## Troubleshooting
+
+### ANE Not Working / Models Running Slowly
+
+**Problem**: Models are running slowly or ANE diagnostic shows "ANE Hardware Available: False"
+
+**Root Cause**: You're likely using x86_64 Python under Rosetta translation, which cannot access ANE hardware.
+
+**Quick Diagnosis**: Check your Python architecture:
+```bash
+python -c "import platform; print(f'Architecture: {platform.machine()}')"
+```
+
+**Expected Result**: `arm64` (on Apple Silicon Macs)
+
+**If you see `x86_64` on Apple Silicon:**
+- ❌ You're using Python under Rosetta translation
+- ❌ ANE hardware is not accessible
+- ❌ Models will run on CPU only (much slower)
+
+**Solution**: Rebuild your environment with native ARM64 Python:
+```bash
+# Remove old environment
+rm -rf env-anemll-bench
+
+# Create new environment with native ARM64 Python
+/usr/bin/python3 -m venv env-anemll-bench
+# OR install native Python first
+/opt/homebrew/bin/brew install python@3.9
+/opt/homebrew/opt/python@3.9/bin/python3.9 -m venv env-anemll-bench
+
+source env-anemll-bench/bin/activate
+pip install -r requirements.txt
+pip install -e .
+```
+
+**Performance Difference**: 
+- ARM64 Python + ANE: ~7-20ms inference time
+- x86_64 Python (CPU only): ~100-500ms inference time
+
+### Verify ANE is Working
+
+Run the setup verification script:
+```bash
+python check_setup.py
+```
+
+Or run the detailed ANE diagnostic:
+```bash
+python debug_ane.py
+```
+
+You should see:
+- Architecture: `arm64`
+- ANE Hardware Available: `True`
+- Overall Status: `ANE should be available`
+
+### Automatic ARM64 Validation
+
+**The benchmark tool now automatically validates ARM64 setup and will fail early if you're using x86_64 Python.**
+
+When you run any benchmark, it will:
+- ✅ **Pass**: If using ARM64 Python on Apple Silicon
+- ❌ **Fail**: If using x86_64 Python under Rosetta (with clear instructions)
+- ⚠️ **Warn**: If running on Intel Mac (asks if you want to continue)
+
+**Example error message:**
+```
+❌ ERROR: ANE ACCESS BLOCKED
+You're running Python under Rosetta (x86_64 emulation) on Apple Silicon.
+This prevents access to the Apple Neural Engine (ANE) hardware.
+
+SOLUTION: Rebuild your environment with native ARM64 Python:
+1. Remove current environment: rm -rf env-anemll-bench
+2. Create new environment with native Python: /usr/bin/python3 -m venv env-anemll-bench
+3. Activate and reinstall: source env-anemll-bench/bin/activate && pip install -r requirements.txt && pip install -e .
+4. Verify ARM64 setup: python check_setup.py
+```
+
+**Skip validation (for testing only):**
+```bash
+python -m anemll_bench --skip-arm64-check --model your_model
+```
 
 ## Features
 - **Standard Benchmarking**: Measure individual model performance on Apple Neural Engine (ANE)

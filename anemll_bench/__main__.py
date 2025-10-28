@@ -17,7 +17,7 @@ def parse_args():
     # Model specification
     model_group = parser.add_argument_group('Model Options')
     model_group.add_argument('--model', type=str, 
-                            help='Hugging Face model ID to benchmark')
+                            help='Hugging Face model ID to benchmark (NOT recommended - use ANEMLL-optimized models instead)')
     model_group.add_argument('--config', type=str,
                             help='Path to benchmark configuration JSON file')
     
@@ -53,6 +53,8 @@ def parse_args():
     system_group = parser.add_argument_group('System Options')
     system_group.add_argument('--system-info', action='store_true',
                             help='Display system information and exit')
+    system_group.add_argument('--skip-arm64-check', action='store_true',
+                            help='Skip ARM64 validation (for testing only)')
     
     return parser.parse_args()
 
@@ -93,10 +95,30 @@ def main():
     # Check that we have either a model or config
     if not args.model and not args.config:
         print("Error: Either --model or --config must be specified")
+        print("\nRecommended: Use ANEMLL-optimized models instead of Hugging Face models:")
+        print("  python examples/benchmark_all_models.py --use-local --no-sync")
         return 1
     
+    # Warn if using Hugging Face model
+    if args.model:
+        print("⚠️  WARNING: You're using a Hugging Face model, which is NOT optimized for ANE!")
+        print("   For best ANE performance, use ANEMLL-optimized models:")
+        print("   python examples/benchmark_all_models.py --use-local --no-sync")
+        print("")
+        print("Continue with Hugging Face model anyway? (y/N): ", end="")
+        try:
+            response = input().strip().lower()
+            if response not in ['y', 'yes']:
+                print("Benchmark cancelled. Use ANEMLL models for optimal ANE performance.")
+                return 1
+        except KeyboardInterrupt:
+            print("\nBenchmark cancelled.")
+            return 1
+        print("Continuing with Hugging Face model (performance may be suboptimal)...")
+        print("")
+    
     # Initialize benchmark
-    benchmark = Benchmark(config_path=args.config)
+    benchmark = Benchmark(config_path=args.config, skip_arm64_check=args.skip_arm64_check)
     
     # If we have a config file, run that benchmark
     if args.config:

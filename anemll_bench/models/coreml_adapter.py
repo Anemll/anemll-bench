@@ -11,7 +11,7 @@ from typing import Dict, Any, List, Optional, Tuple, Union
 
 def load_coreml_model(model_path: str, compute_units: str = "CPU_AND_NE") -> Any:
     """
-    Load a CoreML model with specified compute units
+    Load a CoreML model with specified compute units and comprehensive ANE debugging
     
     Args:
         model_path: Path to the CoreML model (.mlmodel or .mlmodelc)
@@ -20,7 +20,11 @@ def load_coreml_model(model_path: str, compute_units: str = "CPU_AND_NE") -> Any
     Returns:
         Loaded CoreML model
     """
+    print(f"\n{'='*50}")
+    print(f"COREML MODEL LOADING DEBUG")
+    print(f"{'='*50}")
     print(f"Loading model: {model_path}")
+    print(f"Requested compute units: {compute_units}")
     
     # Map string compute units to CoreML compute units
     compute_units_map = {
@@ -30,19 +34,70 @@ def load_coreml_model(model_path: str, compute_units: str = "CPU_AND_NE") -> Any
     }
     
     cu = compute_units_map.get(compute_units, ct.ComputeUnit.CPU_AND_NE)
+    print(f"Mapped compute unit: {cu}")
+    print(f"Compute unit name: {str(cu)}")
+    
+    # Check file existence and type
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    
+    file_size = 0
+    if os.path.isfile(model_path):
+        file_size = os.path.getsize(model_path)
+    else:
+        # Directory - calculate total size
+        for root, dirs, files in os.walk(model_path):
+            for file in files:
+                file_size += os.path.getsize(os.path.join(root, file))
+    
+    print(f"Model file size: {file_size / (1024*1024):.2f} MB")
+    print(f"Model format: {'Compiled (.mlmodelc)' if model_path.endswith('.mlmodelc') else 'Uncompiled (.mlmodel)'}")
     
     try:
         if model_path.endswith('.mlmodelc'):
             # Load compiled model - note the parameter is called compute_units (plural)
+            print("Loading as CompiledMLModel...")
             model = ct.models.CompiledMLModel(model_path, compute_units=cu)
         else:
             # Load uncompiled model - note the parameter is called compute_units (plural)
+            print("Loading as MLModel...")
             model = ct.models.MLModel(model_path, compute_units=cu)
         
-        print(f"Successfully loaded model: {model_path}")
+        print(f"✓ Successfully loaded model: {model_path}")
+        
+        # Post-load debugging
+        print(f"\nPOST-LOAD MODEL ANALYSIS:")
+        print(f"Model type: {type(model)}")
+        
+        # CoreML models don't expose their compute unit after loading
+        # The compute unit is set during loading and cannot be queried afterward
+        print(f"Intended compute unit: {cu}")
+        print(f"ANE should be enabled: {cu in [ct.ComputeUnit.CPU_AND_NE, ct.ComputeUnit.ALL]}")
+        print("Note: CoreML models don't expose compute_unit attribute after loading")
+        
+        # Try to get model spec for additional info
+        try:
+            spec = model.get_spec()
+            print(f"Model spec version: {spec.specificationVersion}")
+            print(f"Model type in spec: {spec.WhichOneof('Type')}")
+            
+            # Check for ANE-specific optimizations
+            if hasattr(spec, 'mlProgram') and spec.mlProgram:
+                print("✓ ML Program detected (ANE-optimized)")
+            else:
+                print("⚠ ML Program not detected (may not be ANE-optimized)")
+                
+        except Exception as e:
+            print(f"Could not get model spec: {e}")
+        
+        print(f"{'='*50}")
         return model
+        
     except Exception as e:
-        print(f"Error loading model: {e}")
+        print(f"✗ Error loading model: {e}")
+        print(f"Full error details:")
+        import traceback
+        print(traceback.format_exc())
         raise
 
 

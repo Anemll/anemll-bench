@@ -17,6 +17,7 @@ anemll_bench/reports/__init__.py
 anemll_bench/reports/report_generator.py
 anemll_bench/reports/report_uploader.py
 anemll_bench/utils/__init__.py
+anemll_bench/utils/ane_verification.py
 anemll_bench/utils/system_info.py
 anemll_bench/utils/visualization.py
 tests/test_benchmark.py

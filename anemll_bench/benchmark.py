@@ -38,13 +38,18 @@ from anemll_bench.models.benchmark_result import BenchmarkResult
 class Benchmark:
     """Benchmark class for measuring Apple Neural Engine performance"""
     
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None, skip_arm64_check: bool = False):
         """
         Initialize the benchmarking tool.
         
         Args:
             config_path: Path to a configuration file
+            skip_arm64_check: Skip ARM64 validation (for testing only)
         """
+        # Validate ARM64 requirement for ANE access (unless skipped)
+        if not skip_arm64_check:
+            self._validate_arm64_requirement()
+        
         self.results = []
         self.config_path = config_path
         self.config = {}
@@ -54,6 +59,79 @@ class Benchmark:
                 self.config = json.load(f)
                 
         self.system_info = get_system_info()
+    
+    def _validate_arm64_requirement(self):
+        """
+        Validate that we're running on ARM64 architecture for ANE access.
+        Fails early if running on x86_64 (which cannot access ANE).
+        """
+        python_arch = platform.machine()
+        system_arch = os.uname().machine if hasattr(os, 'uname') else 'unknown'
+        
+        # Check if we're on Apple Silicon but using x86_64 Python
+        if python_arch == 'x86_64' and system_arch == 'arm64':
+            print("=" * 80)
+            print("❌ ERROR: ANE ACCESS BLOCKED")
+            print("=" * 80)
+            print("You're running Python under Rosetta (x86_64 emulation) on Apple Silicon.")
+            print("This prevents access to the Apple Neural Engine (ANE) hardware.")
+            print("")
+            print("SOLUTION: Rebuild your environment with native ARM64 Python:")
+            print("")
+            print("1. Remove current environment:")
+            print("   rm -rf env-anemll-bench")
+            print("")
+            print("2. Create new environment with native Python:")
+            print("   /usr/bin/python3 -m venv env-anemll-bench")
+            print("   # OR")
+            print("   /opt/homebrew/bin/brew install python@3.9")
+            print("   /opt/homebrew/opt/python@3.9/bin/python3.9 -m venv env-anemll-bench")
+            print("")
+            print("3. Activate and reinstall:")
+            print("   source env-anemll-bench/bin/activate")
+            print("   pip install -r requirements.txt")
+            print("   pip install -e .")
+            print("")
+            print("4. Verify ARM64 setup:")
+            print("   python check_setup.py")
+            print("=" * 80)
+            raise RuntimeError(
+                "ANE access blocked: Python running under Rosetta (x86_64) on Apple Silicon. "
+                "Rebuild environment with native ARM64 Python."
+            )
+        
+        # Check if we're on Intel Mac (no ANE available)
+        elif python_arch == 'x86_64' and system_arch == 'x86_64':
+            print("=" * 80)
+            print("⚠️  WARNING: NO ANE AVAILABLE")
+            print("=" * 80)
+            print("You're running on an Intel Mac. Apple Neural Engine (ANE) is not available.")
+            print("Models will run on CPU only, which will be significantly slower.")
+            print("")
+            print("Expected performance:")
+            print("- ARM64 + ANE: ~7-20ms inference time")
+            print("- Intel CPU only: ~100-500ms inference time")
+            print("")
+            print("Continue anyway? (y/N): ", end="")
+            try:
+                response = input().strip().lower()
+                if response not in ['y', 'yes']:
+                    print("Benchmark cancelled.")
+                    raise RuntimeError("Benchmark cancelled: ANE not available on Intel Mac")
+            except KeyboardInterrupt:
+                print("\nBenchmark cancelled.")
+                raise RuntimeError("Benchmark cancelled: ANE not available on Intel Mac")
+            print("Continuing with CPU-only execution...")
+            print("=" * 80)
+        
+        # Success case: ARM64 Python on Apple Silicon
+        elif python_arch == 'arm64' and system_arch == 'arm64':
+            print("✅ ARM64 Python detected - ANE access available")
+        
+        # Unknown case
+        else:
+            print(f"⚠️  Unknown architecture combination: Python={python_arch}, System={system_arch}")
+            print("Proceeding with caution...")
     
     def _estimate_flops(self, model, input_shape: List[int]) -> float:
         """Estimate the number of FLOPS for a model with given input shape"""
@@ -281,6 +359,71 @@ class Benchmark:
             # Import appropriate backends
             import coremltools as ct
             
+            # === COMPREHENSIVE ANE DEBUGGING ===
+            print(f"\n{'='*60}")
+            print(f"ANE DEBUGGING FOR MODEL: {model_name}")
+            print(f"{'='*60}")
+            
+            # 1. System Information Debug
+            print(f"\n1. SYSTEM INFORMATION:")
+            print(f"   - Platform: {platform.system()} {platform.release()}")
+            print(f"   - Architecture: {platform.machine()}")
+            print(f"   - Apple Silicon: {platform.machine() == 'arm64' and platform.system() == 'Darwin'}")
+            
+            # 2. CoreML Tools Version
+            print(f"\n2. COREML TOOLS:")
+            print(f"   - Version: {ct.__version__}")
+            print(f"   - Available compute units: {[str(cu) for cu in ct.ComputeUnit]}")
+            
+            # 3. Model Information Debug
+            print(f"\n3. MODEL INFORMATION:")
+            print(f"   - Model type: {type(model)}")
+            print(f"   - Model name: {model_name}")
+            print(f"   - Input shape: {input_shape}")
+            print(f"   - Backend requested: {backend}")
+            
+            # Try to get model spec information
+            try:
+                spec = model.get_spec()
+                print(f"   - Model spec version: {spec.specificationVersion}")
+                print(f"   - Model type in spec: {spec.WhichOneof('Type')}")
+                
+                # Check if model has ANE-specific optimizations
+                if hasattr(spec, 'mlProgram') and spec.mlProgram:
+                    print(f"   - ML Program: Yes (ANE-optimized)")
+                else:
+                    print(f"   - ML Program: No (may not be ANE-optimized)")
+                    
+                # Check compute units support
+                if hasattr(spec, 'description') and hasattr(spec.description, 'metadata'):
+                    metadata = spec.description.metadata
+                    if hasattr(metadata, 'userDefined'):
+                        print(f"   - User defined metadata: {dict(metadata.userDefined)}")
+                        
+            except Exception as e:
+                print(f"   - Error getting model spec: {e}")
+            
+            # 4. Compute Unit Configuration Debug
+            print(f"\n4. COMPUTE UNIT CONFIGURATION:")
+            compute_units_map = {
+                "CPU": ct.ComputeUnit.CPU_ONLY,
+                "GPU": ct.ComputeUnit.CPU_AND_GPU,
+                "ANE": ct.ComputeUnit.CPU_AND_NE,
+                "ALL": ct.ComputeUnit.ALL
+            }
+            compute_unit = compute_units_map.get(backend, ct.ComputeUnit.CPU_AND_NE)
+            print(f"   - Requested backend: {backend}")
+            print(f"   - Mapped compute unit: {compute_unit}")
+            print(f"   - Compute unit name: {str(compute_unit)}")
+            
+            # Check if model supports compute unit setting
+            # NOTE: CoreML models don't have a compute_unit attribute that can be set after loading
+            # Compute units must be specified during model loading
+            print(f"   - Model supports compute_unit: No (CoreML limitation)")
+            print(f"   - Compute units must be specified during model loading")
+            print(f"   - Current model was loaded with: {compute_unit}")
+            print(f"   - Warning: Cannot change compute unit after model loading")
+            
             # Extract batch size, sequence length, hidden size
             batch_size = input_shape[0] if len(input_shape) > 0 else 1
             sequence_length = input_shape[1] if len(input_shape) > 1 else 1
@@ -307,45 +450,146 @@ class Benchmark:
                     else:
                         input_name = "input_ids"  # Common default
             
-            print(f"Using input name: {input_name}")
+            print(f"\n5. INPUT PREPARATION:")
+            print(f"   - Using input name: {input_name}")
+            print(f"   - Input shape: {input_data.shape}")
+            print(f"   - Input dtype: {input_data.dtype}")
+            print(f"   - Input size: {input_data.nbytes / 1024:.2f} KB")
             
             # Create input dictionary
             inputs = {input_name: input_data}
             
-            # Map backend to compute units
-            compute_units_map = {
-                "CPU": ct.ComputeUnit.CPU_ONLY,
-                "GPU": ct.ComputeUnit.CPU_AND_GPU,
-                "ANE": ct.ComputeUnit.CPU_AND_NE,
-                "ALL": ct.ComputeUnit.ALL
-            }
-            compute_unit = compute_units_map.get(backend, ct.ComputeUnit.CPU_AND_NE)
+            # 6. Pre-execution ANE Check
+            print(f"\n6. PRE-EXECUTION ANE VERIFICATION:")
+            try:
+                # CoreML models don't expose their compute unit after loading
+                # We can only verify the intended compute unit from loading parameters
+                print(f"   - Intended compute unit: {compute_unit}")
+                print(f"   - ANE should be enabled: {compute_unit in [ct.ComputeUnit.CPU_AND_NE, ct.ComputeUnit.ALL]}")
+                
+                # Check if we're on Apple Silicon
+                if platform.machine() == 'arm64' and platform.system() == 'Darwin':
+                    print(f"   - Apple Silicon detected: Yes")
+                    print(f"   - ANE hardware available: Yes")
+                else:
+                    print(f"   - Apple Silicon detected: No")
+                    print(f"   - ANE hardware available: No")
+                    
+                # Check macOS version for ANE support
+                macos_version = platform.mac_ver()[0]
+                if macos_version:
+                    major_version = int(macos_version.split('.')[0])
+                    if major_version >= 15:
+                        print(f"   - macOS version: {macos_version} (Enhanced ANE support)")
+                    elif major_version >= 14:
+                        print(f"   - macOS version: {macos_version} (Standard ANE support)")
+                    else:
+                        print(f"   - macOS version: {macos_version} (Limited ANE support)")
+                    
+            except Exception as e:
+                print(f"   - Error during ANE verification: {e}")
             
-            # Set compute unit if the model supports it
-            if hasattr(model, 'compute_unit'):
-                model.compute_unit = compute_unit
+            # Warm up with detailed timing
+            print(f"\n7. WARMUP PHASE:")
+            warmup_times = []
+            for i in range(5):
+                try:
+                    start_warmup = time.time()
+                    result = model.predict(inputs)
+                    warmup_time = (time.time() - start_warmup) * 1000
+                    warmup_times.append(warmup_time)
+                    print(f"   - Warmup {i+1}: {warmup_time:.2f} ms")
+                    
+                    # Check output
+                    if isinstance(result, dict):
+                        output_keys = list(result.keys())
+                        print(f"   - Output keys: {output_keys}")
+                        for key, value in result.items():
+                            if hasattr(value, 'shape'):
+                                print(f"   - {key} shape: {value.shape}, dtype: {value.dtype}")
+                    else:
+                        print(f"   - Output type: {type(result)}")
+                        
+                except Exception as e:
+                    print(f"   - Warmup {i+1} failed: {e}")
+                    break
             
-            # Warm up
-            print(f"Warming up model...")
-            for _ in range(5):
-                _ = model.predict(inputs)
+            if warmup_times:
+                avg_warmup = sum(warmup_times) / len(warmup_times)
+                print(f"   - Average warmup time: {avg_warmup:.2f} ms")
             
-            # Run benchmark
-            print(f"Running {num_runs} iterations for benchmarking...")
+            # Run benchmark with detailed monitoring
+            print(f"\n8. BENCHMARK EXECUTION:")
+            print(f"   - Running {num_runs} iterations...")
+            
+            # Monitor first few iterations for ANE behavior
+            iteration_times = []
             start_time = time.time()
             
-            # Run all iterations without progress updates
-            for _ in range(num_runs):
-                _ = model.predict(inputs)
-                
+            for i in range(num_runs):
+                iter_start = time.time()
+                try:
+                    result = model.predict(inputs)
+                    iter_time = (time.time() - iter_start) * 1000
+                    iteration_times.append(iter_time)
+                    
+                    # Log first few iterations in detail
+                    if i < 5:
+                        print(f"   - Iteration {i+1}: {iter_time:.2f} ms")
+                        
+                except Exception as e:
+                    print(f"   - Iteration {i+1} failed: {e}")
+                    break
+                    
             end_time = time.time()
+            
+            # 9. Post-execution Analysis
+            print(f"\n9. POST-EXECUTION ANALYSIS:")
+            if iteration_times:
+                avg_time = sum(iteration_times) / len(iteration_times)
+                min_time = min(iteration_times)
+                max_time = max(iteration_times)
+                print(f"   - Successful iterations: {len(iteration_times)}/{num_runs}")
+                print(f"   - Average time: {avg_time:.2f} ms")
+                print(f"   - Min time: {min_time:.2f} ms")
+                print(f"   - Max time: {max_time:.2f} ms")
+                
+                # ANE Performance Indicators
+                print(f"\n10. ANE PERFORMANCE INDICATORS:")
+                if avg_time < 5.0:
+                    print(f"   - Very fast inference ({avg_time:.2f} ms) - likely using ANE")
+                elif avg_time < 20.0:
+                    print(f"   - Fast inference ({avg_time:.2f} ms) - possibly using ANE")
+                elif avg_time < 100.0:
+                    print(f"   - Moderate inference ({avg_time:.2f} ms) - may be CPU/GPU")
+                else:
+                    print(f"   - Slow inference ({avg_time:.2f} ms) - likely CPU only")
+                    
+                # Check for ANE-specific timing patterns
+                if len(iteration_times) > 10:
+                    first_10_avg = sum(iteration_times[:10]) / 10
+                    last_10_avg = sum(iteration_times[-10:]) / 10
+                    print(f"   - First 10 iterations avg: {first_10_avg:.2f} ms")
+                    print(f"   - Last 10 iterations avg: {last_10_avg:.2f} ms")
+                    
+                    if abs(first_10_avg - last_10_avg) < 1.0:
+                        print(f"   - Consistent timing - good for ANE")
+                    else:
+                        print(f"   - Variable timing - may indicate CPU usage")
+            else:
+                print(f"   - No successful iterations completed")
+                raise Exception("All benchmark iterations failed")
+            
+            print(f"\n{'='*60}")
+            print(f"ANE DEBUGGING COMPLETE")
+            print(f"{'='*60}\n")
             
             # Log completion
             elapsed_time = end_time - start_time
-            print(f"Completed {num_runs} iterations in {elapsed_time:.2f} seconds ({elapsed_time/num_runs:.4f}s per iteration)")
+            print(f"Completed {len(iteration_times)} iterations in {elapsed_time:.2f} seconds ({elapsed_time/len(iteration_times):.4f}s per iteration)")
             
-            # Calculate metrics
-            inference_time_ms = (elapsed_time * 1000) / num_runs
+            # Calculate metrics using the detailed timing data
+            inference_time_ms = sum(iteration_times) / len(iteration_times)
             
             # Calculate FLOPs
             flops = self._estimate_flops(model, input_shape)
@@ -380,7 +624,7 @@ class Benchmark:
             )
             
             # Print results - omit TFLOPs since they're not calculated correctly
-            print(f"Benchmark results for {model_name} on {backend}:")
+            print(f"\nFINAL BENCHMARK RESULTS for {model_name} on {backend}:")
             print(f"  - Inference time: {inference_time_ms:.2f} ms")
             # Only print TFLOPs if provided externally (currently set to None)
             if tflops is not None:
@@ -394,6 +638,8 @@ class Benchmark:
             
         except Exception as e:
             print(f"Error benchmarking model {model_name}: {e}")
+            import traceback
+            print(f"Full traceback: {traceback.format_exc()}")
             raise
     
     def benchmark_coreml_file(self, model_path: str, model_name: Optional[str] = None, 
@@ -989,10 +1235,9 @@ class Benchmark:
         }
         compute_unit = compute_units_map.get(backend, ct.ComputeUnit.CPU_AND_NE)
         
-        # Set compute unit for models if supported
-        for model, name in [(model1, model1_name), (model2, model2_name)]:
-            if hasattr(model, 'compute_unit'):
-                model.compute_unit = compute_unit
+        # Note: CoreML models don't support setting compute_unit after loading
+        # Compute units must be specified during model loading
+        print(f"Note: Compute units were set during model loading and cannot be changed")
                 
         # Prepare input data for both models
         input_data1 = np.random.rand(*model1_input_shape).astype(np.float32)

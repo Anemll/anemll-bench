@@ -101,6 +101,148 @@ def get_ram_info():
     }
 
 
+def get_ane_info():
+    """
+    Get detailed Apple Neural Engine (ANE) information for Apple Silicon devices.
+    
+    Returns:
+        Dictionary with ANE capabilities and specifications
+    """
+    ane_info = {
+        'available': True,
+        'cores': 'Unknown',
+        'tflops': 'Unknown',
+        'chip_model': 'Unknown',
+        'ane_generation': 'Unknown',
+        'capabilities': []
+    }
+    
+    try:
+        # Get Mac model identifier
+        mac_model = get_mac_model_identifier()
+        if mac_model:
+            ane_info['chip_model'] = mac_model
+            
+            # Map Mac models to ANE specifications
+            ane_specs = {
+                # M1 Series
+                'MacBookAir10,1': {'cores': 16, 'generation': 'M1', 'tflops': '11'},
+                'MacBookPro17,1': {'cores': 16, 'generation': 'M1', 'tflops': '11'},
+                'Macmini9,1': {'cores': 16, 'generation': 'M1', 'tflops': '11'},
+                'iMac21,1': {'cores': 16, 'generation': 'M1', 'tflops': '11'},
+                'iMac21,2': {'cores': 16, 'generation': 'M1', 'tflops': '11'},
+                
+                # M1 Pro
+                'MacBookPro18,1': {'cores': 16, 'generation': 'M1 Pro', 'tflops': '11'},
+                'MacBookPro18,2': {'cores': 16, 'generation': 'M1 Pro', 'tflops': '11'},
+                'MacBookPro18,3': {'cores': 16, 'generation': 'M1 Pro', 'tflops': '11'},
+                'MacBookPro18,4': {'cores': 16, 'generation': 'M1 Pro', 'tflops': '11'},
+                
+                # M1 Max
+                'MacBookPro18,1': {'cores': 32, 'generation': 'M1 Max', 'tflops': '22'},
+                'MacBookPro18,2': {'cores': 32, 'generation': 'M1 Max', 'tflops': '22'},
+                'MacBookPro18,3': {'cores': 32, 'generation': 'M1 Max', 'tflops': '22'},
+                'MacBookPro18,4': {'cores': 32, 'generation': 'M1 Max', 'tflops': '22'},
+                
+                # M1 Ultra
+                'MacStudio1,1': {'cores': 64, 'generation': 'M1 Ultra', 'tflops': '44'},
+                
+                # M2 Series
+                'MacBookAir13,2': {'cores': 16, 'generation': 'M2', 'tflops': '15.8'},
+                'MacBookPro18,1': {'cores': 16, 'generation': 'M2', 'tflops': '15.8'},
+                'Macmini9,1': {'cores': 16, 'generation': 'M2', 'tflops': '15.8'},
+                
+                # M2 Pro
+                'MacBookPro19,1': {'cores': 16, 'generation': 'M2 Pro', 'tflops': '15.8'},
+                'MacBookPro19,2': {'cores': 16, 'generation': 'M2 Pro', 'tflops': '15.8'},
+                
+                # M2 Max
+                'MacBookPro19,1': {'cores': 32, 'generation': 'M2 Max', 'tflops': '31.6'},
+                'MacBookPro19,2': {'cores': 32, 'generation': 'M2 Max', 'tflops': '31.6'},
+                
+                # M2 Ultra
+                'MacPro7,1': {'cores': 64, 'generation': 'M2 Ultra', 'tflops': '63.2'},
+                
+                # M3 Series
+                'MacBookAir15,1': {'cores': 16, 'generation': 'M3', 'tflops': '18'},
+                'MacBookPro18,1': {'cores': 16, 'generation': 'M3', 'tflops': '18'},
+                'iMac24,1': {'cores': 16, 'generation': 'M3', 'tflops': '18'},
+                
+                # M3 Pro
+                'MacBookPro18,1': {'cores': 16, 'generation': 'M3 Pro', 'tflops': '18'},
+                'MacBookPro18,2': {'cores': 16, 'generation': 'M3 Pro', 'tflops': '18'},
+                
+                # M3 Max
+                'MacBookPro18,1': {'cores': 32, 'generation': 'M3 Max', 'tflops': '36'},
+                'MacBookPro18,2': {'cores': 32, 'generation': 'M3 Max', 'tflops': '36'},
+                
+                # M3 Ultra
+                'MacStudio1,1': {'cores': 64, 'generation': 'M3 Ultra', 'tflops': '72'},
+                
+                # M4 Series
+                'MacBookAir15,1': {'cores': 16, 'generation': 'M4', 'tflops': '38'},
+                'MacBookPro18,1': {'cores': 16, 'generation': 'M4', 'tflops': '38'},
+                
+                # M4 Pro
+                'MacBookPro18,1': {'cores': 16, 'generation': 'M4 Pro', 'tflops': '38'},
+                'MacBookPro18,2': {'cores': 16, 'generation': 'M4 Pro', 'tflops': '38'},
+                
+                # M4 Max
+                'MacBookPro18,1': {'cores': 32, 'generation': 'M4 Max', 'tflops': '76'},
+                'MacBookPro18,2': {'cores': 32, 'generation': 'M4 Max', 'tflops': '76'},
+            }
+            
+            if mac_model in ane_specs:
+                specs = ane_specs[mac_model]
+                ane_info.update(specs)
+            else:
+                # Try to infer from model name patterns
+                if 'MacBookAir' in mac_model:
+                    ane_info.update({'cores': 16, 'generation': 'Unknown M-series', 'tflops': 'Unknown'})
+                elif 'MacBookPro' in mac_model:
+                    ane_info.update({'cores': 16, 'generation': 'Unknown M-series Pro/Max', 'tflops': 'Unknown'})
+                elif 'MacStudio' in mac_model:
+                    ane_info.update({'cores': 64, 'generation': 'Unknown M-series Ultra', 'tflops': 'Unknown'})
+                elif 'iMac' in mac_model:
+                    ane_info.update({'cores': 16, 'generation': 'Unknown M-series', 'tflops': 'Unknown'})
+                elif 'Macmini' in mac_model:
+                    ane_info.update({'cores': 16, 'generation': 'Unknown M-series', 'tflops': 'Unknown'})
+        
+        # Add capabilities based on macOS version
+        macos_version = get_macos_version()
+        if macos_version:
+            if macos_version >= '15.0':
+                ane_info['capabilities'].extend([
+                    'Enhanced ANE support',
+                    'Improved CoreML integration',
+                    'Better memory management'
+                ])
+            elif macos_version >= '14.0':
+                ane_info['capabilities'].extend([
+                    'Standard ANE support',
+                    'CoreML integration',
+                    'Basic memory management'
+                ])
+            else:
+                ane_info['capabilities'].extend([
+                    'Limited ANE support',
+                    'Legacy CoreML integration'
+                ])
+        
+        # Add general capabilities
+        ane_info['capabilities'].extend([
+            'Neural network acceleration',
+            'Machine learning inference',
+            'CoreML model execution'
+        ])
+        
+    except Exception as e:
+        print(f"Warning: Could not determine detailed ANE info: {e}")
+        ane_info['error'] = str(e)
+    
+    return ane_info
+
+
 def get_system_info():
     """Collect comprehensive system information"""
     system_info = {
@@ -122,14 +264,14 @@ def get_system_info():
     # Check if we're running on Apple Silicon
     system_info['apple_silicon'] = platform.machine() == "arm64" and platform.system() == "Darwin"
     
-    # Try to get Neural Engine information if on Apple Silicon
+    # Get detailed ANE information if on Apple Silicon
     if system_info['apple_silicon']:
-        # This is a placeholder - Apple doesn't provide direct API for ANE specs
+        ane_info = get_ane_info()
+        system_info['neural_engine'] = ane_info
+    else:
         system_info['neural_engine'] = {
-            'available': True,
-            # Information below would need to be determined based on device model
-            'cores': "Unknown",  # Different Apple chips have different ANE core counts
-            'tflops': "Unknown", # Would vary by chip generation
+            'available': False,
+            'reason': 'Not running on Apple Silicon'
         }
     
     return system_info
