@@ -257,7 +257,7 @@ The dual model benchmarking feature allows you to run two models simultaneously 
 
 ```bash
 # First time setup: ensure you have all required models
-python examples/update_dual_benchmark.py
+python examples/sync_models.py --update
 
 # Run the dual model benchmark with default settings
 python examples/benchmark_dual_models.py
