@@ -20,7 +20,7 @@ Higher memory bandwidth and lower inference time indicate better performance.
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20251028_v5)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20251029_v1)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
@@ -42,9 +42,9 @@ As shown in the visualization:
 | M2 | 60.45 | 8.67 | 1.1x | 0.9x |
 | M2 Max | 62.01 | 6.64 | 1.1x | 1.1x |
 | M2 Ultra | 61.68 | 6.70 | 1.1x | 1.1x |
-| M3 | 63.10 | 16.65 | 1.2x | 0.5x |
+| M3 | 63.10 | 6.95 | 1.2x | 1.1x |
 | M3 Max | 120.22 | 3.98 | 2.2x | 1.9x |
-| M4 16GB MBP  | 64.18 | 6.45 | 1.2x | 1.2x |
+| M4 | 64.18 | 6.45 | 1.2x | 1.2x |
 | M4 Pro 24GB Mini| 126.36 | 3.85 | 2.3x | 2.0x |
 | M4 Max | 118.88 | 3.87 | 2.2x | 2.0x |
 | M5 | 70.21 | 6.10 | 1.3x | 1.2x |
