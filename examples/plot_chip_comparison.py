@@ -28,41 +28,35 @@ def main():
     args = parser.parse_args()
 
     # Sample data from llama_lm_head model benchmarks
-    chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Max', 'M2 Ultra', 'M3', 'M3 Max', 'M4', 'M4 Pro\n24GB Mini', 'M4 Max', 'M5']
-    bandwidth = [60.87, 54.90, 54.62, 54.72, 60.45, 62.01, 61.68, 63.10, 120.22, 64.18, 126.36, 118.88, 70.21]  # GB/s (llama_lm_head)
-    inference = [7.52, 7.45, 7.61, 7.58, 8.67, 6.64, 6.70, 6.95, 3.98, 6.45, 3.85, 3.87, 6.10]           # ms (llama_lm_head_lut6 for M3 base)
-    bandwidth_factor = ['1.1x', '1.0x', '1.0x', '1.0x', '1.1x', '1.1x', '1.1x', '1.1x', '2.2x', '1.2x', '2.3x', '2.2x', '1.3x']
-    inference_factor = ['1.0x', '1.0x', '1.0x', '1.0x', '0.9x', '1.1x', '1.1x', '1.1x', '1.9x', '1.2x', '2.0x', '2.0x', '1.2x']
+    chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Max', 'M2 Ultra', 'M3', 'M3 Max', 'M4', 'M4 Pro\n24GB Mini', 'M4 Max', 'M5', 'M5 Max']
+    bandwidth = [60.87, 54.90, 54.62, 54.72, 60.45, 62.01, 61.68, 63.10, 120.22, 64.18, 126.36, 118.88, 70.21, 148.39]  # GB/s (llama_lm_head)
+    bandwidth_factor = ['1.1x', '1.0x', '1.0x', '1.0x', '1.1x', '1.1x', '1.1x', '1.1x', '2.2x', '1.2x', '2.3x', '2.2x', '1.3x', '2.7x']
 
     # Option 1: Use plot_chip_comparison directly
     print("Demonstrating direct use of plot_chip_comparison function...\n")
-    
+
     save_path = None
     if args.save:
         os.makedirs(args.output_dir, exist_ok=True)
         save_path = os.path.join(args.output_dir, "chip_comparison_direct.png")
-    
+
     plot_chip_comparison(
         chips=chips,
         bandwidth=bandwidth,
-        inference=inference,
         bandwidth_factor=bandwidth_factor,
-        inference_factor=inference_factor,
         title="ANEMLL-BENCH: Apple Neural Engine Performance Comparison (llama_lm_head)",
         save_path=save_path,
         show_plot=not args.no_show
     )
-    
+
     # Option 2: Use plot_benchmark_results with a data dictionary
     print("Demonstrating use of plot_benchmark_results function with benchmark data...\n")
-    
+
     # Create a benchmark data dictionary
     benchmark_data = {
         'chips': chips,
         'bandwidth': bandwidth,
-        'inference': inference,
         'bandwidth_factor': bandwidth_factor,
-        'inference_factor': inference_factor,
     }
     
     # Plot using the higher-level function

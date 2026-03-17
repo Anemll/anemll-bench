@@ -38,7 +38,26 @@ ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.c
 
 [![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20251029_v1)](./Results.MD)
 
-Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M3, M4 series).
+Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M3, M4, M5 series).
+
+### ANE Bandwidth vs System Memory Bandwidth
+
+| Chip | ANE BW (GB/s) | System Mem BW (GB/s) | ANE Utilization |
+|------|---------------:|--------------------:|----------------:|
+| **M5 Max** | **148** | **614** | **24%** |
+| M4 Pro | 126 | 273 | 46% |
+| M3 Max | 120 | 400 | 30% |
+| M4 Max | 119 | 546 | 22% |
+| M5 | 70 | 154 | 46% |
+| M4 | 64 | 120 | 53% |
+| M3 | 63 | 100 | 63% |
+| M2 Max | 62 | 400 | 16% |
+| M2 Ultra | 62 | 800 | 8% |
+| M1 | 61 | 68 | 89% |
+| M2 | 60 | 100 | 60% |
+| M1 Pro | 55 | 200 | 27% |
+| M1 Ultra | 55 | 800 | 7% |
+| M1 Max | 55 | 400 | 14% |
 
 <div align="center">
   <h2>📊 Help Us Build a Comprehensive Benchmark Database! 📊</h2>

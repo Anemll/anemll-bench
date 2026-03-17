@@ -28,6 +28,7 @@ As shown in the visualization:
 - **Base M2** has slightly better bandwidth than M1 series but slightly worse inference time
 - The M2 Max/Ultra and M4 base model show modest improvements, while M3 Max and high-end M4 variants represent significant leaps in performance
 - **M5** shows solid performance with good memory bandwidth improvement (1.3x) and faster inference times (1.2x), positioning it competitively between M2 and M3 Max performance levels
+- **M5 Max** achieves the highest memory bandwidth of all chips tested (148.39 GB/s, 2.7x over M1 Pro), surpassing even M4 Pro, with excellent inference time (3.71 ms, 2.0x factor) matching M4 Pro/Max performance
 
 ## Detailed Benchmark Results
 
@@ -48,6 +49,7 @@ As shown in the visualization:
 | M4 Pro 24GB Mini| 126.36 | 3.85 | 2.3x | 2.0x |
 | M4 Max | 118.88 | 3.87 | 2.2x | 2.0x |
 | M5 | 70.21 | 6.10 | 1.3x | 1.2x |
+| M5 Max | 148.39 | 3.71 | 2.7x | 2.0x |
 
 ### Key Observations
 
@@ -59,6 +61,7 @@ As shown in the visualization:
    - M4 series demonstrates slightly better performance across both metrics compared to M3 Max
    - The base M4 16GB shows modest improvements (~1.2x) over M1 series, significantly underperforming both M3 Max and higher-end M4 variants
    - **M5 shows solid performance**: It achieves 1.3x memory bandwidth improvement over M1 series (70.21 GB/s) and 1.2x faster inference times (6.10 ms), positioning it competitively between M2 and M3 Max performance levels
+   - **M5 Max leads in bandwidth**: At 148.39 GB/s (2.7x over M1 Pro), the M5 Max achieves the highest memory bandwidth of any chip tested, with inference time of 3.71 ms (2.0x factor) matching M4 Pro/Max performance
 
 2. **Memory Bandwidth Efficiency**:
    - M3 Max and high-end M4 series show ~2.2-2.3x improvement in memory bandwidth utilization
@@ -66,6 +69,7 @@ As shown in the visualization:
    - This indicates that the substantial architectural improvements in the Neural Engine started with the M3 generation
    - Entry-level M4 16GB shows ~1.2x improvement, suggesting memory configuration or thermal constraints may be factors
    - M5 achieves 1.3x memory bandwidth improvement, falling between M2 and M3 Max performance levels
+   - M5 Max achieves the highest bandwidth at 2.7x, surpassing all other chips including M4 Pro (2.3x)
 
 3. **Inference Time Improvements**:
    - Base M2 actually performs slightly worse (0.9x) than M1 series for inference time
@@ -75,6 +79,43 @@ As shown in the visualization:
    - This suggests the major architectural leap for Neural Engine inference performance occurred with the M3 generation
    - M4 represents a more incremental improvement over M3 Max for inference workloads
    - **M5 shows solid inference performance** (6.10 ms), achieving 1.2x improvement over M1 series, which aligns well with its memory bandwidth improvements and positions it competitively in the performance landscape
+   - **M5 Max inference time** (3.71 ms) achieves 2.0x improvement over M1 series, matching M4 Pro/Max levels and confirming the performance leap from M3 generation continues. Dual model benchmarking shows the M5 Max maintains full bandwidth (147.62 GB/s combined) when running two models in parallel
+
+### ANE Bandwidth vs System Memory Bandwidth
+
+| Chip | ANE BW (GB/s) | System Mem BW (GB/s) | ANE Utilization |
+|------|---------------:|--------------------:|----------------:|
+| **M5 Max** | **148** | **614** | **24%** |
+| M4 Pro | 126 | 273 | 46% |
+| M3 Max | 120 | 400 | 30% |
+| M4 Max | 119 | 546 | 22% |
+| M5 | 70 | 154 | 46% |
+| M4 | 64 | 120 | 53% |
+| M3 | 63 | 100 | 63% |
+| M2 Max | 62 | 400 | 16% |
+| M2 Ultra | 62 | 800 | 8% |
+| M1 | 61 | 68 | 89% |
+| M2 | 60 | 100 | 60% |
+| M1 Pro | 55 | 200 | 27% |
+| M1 Ultra | 55 | 800 | 7% |
+| M1 Max | 55 | 400 | 14% |
+
+The ANE does not scale linearly with system memory bandwidth. Three clear performance tiers emerge:
+- **Tier 1 (~120-150 GB/s)**: M5 Max, M4 Pro, M3 Max, M4 Max — architectural ANE improvements
+- **Tier 2 (~60-70 GB/s)**: M5, M4, M3, M2 series, M1 — base ANE performance
+- **Tier 3 (~55 GB/s)**: M1 Pro/Max/Ultra — first-generation ANE with no scaling across variants
+
+### Dual Model Benchmark Results (M5 Max)
+
+| Configuration | Inference Time (ms) | Throughput (GB/s) | Model Size (MB) |
+|--------------|--------------------:|------------------:|----------------:|
+| llama_lm_head (solo) | 7.08 | 148.39 | 1050.67 |
+| DeepHermes_lm_head (solo) | 7.07 | 148.57 | 1050.67 |
+| llama_lm_head (parallel) | 14.19 | 74.06 | 1050.67 |
+| DeepHermes_lm_head (parallel) | 14.21 | 73.94 | 1050.67 |
+| Combined (parallel) | 14.21 | 147.62 | 2101.35 |
+
+The M5 Max maintains nearly identical combined throughput (147.62 GB/s) when running two models in parallel compared to individual runs (~147 GB/s), demonstrating efficient bandwidth utilization across both ANE clusters.
 
 ## Running Your Own Benchmarks
 

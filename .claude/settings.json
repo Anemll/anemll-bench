@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/anemll/.cache/anemll-bench/models/**)",
+      "Read(//Users/anemll/.cache/anemll-bench/reports/**)",
+      "Read(//Users/anemll/.cache/anemll-bench/reports/plots_20260317_070641/**)",
+      "Bash(python examples/plot_chip_comparison.py --save --no-show)",
+      "Bash(/Users/anemll/SourceRelease/GITHUB/ML_playground/anemll-bench/.venv/bin/python examples/plot_chip_comparison.py --save --no-show)",
+      "Bash(ls -lt /Users/anemll/.cache/anemll-bench/reports/*.html)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}
