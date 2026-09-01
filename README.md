@@ -36,7 +36,7 @@ ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.c
 
 ## 📊 [View Benchmark Results](./Results.MD) 📊
 
-[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20251029_v1)](./Results.MD)
+[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260901_v1)](./Results.MD)
 
 Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1, M2, M3, M4, M5 series).
 
@@ -52,6 +52,7 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
 | M4 | 64 | 120 | 53% |
 | M3 | 63 | 100 | 63% |
 | M2 Max | 62 | 400 | 16% |
+| M2 Pro | 62 | 200 | 31% |
 | M2 Ultra | 62 | 800 | 8% |
 | M1 | 61 | 68 | 89% |
 | M2 | 60 | 100 | 60% |
@@ -79,7 +80,7 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
         </td>
         <td>
           ✓ M2 ✅<br>
-          ✓ M2 PRO<br>
+          ✓ M2 PRO ✅<br>
           ✓ M2 MAX ✅<br>
           ✓ M2 ULTRA ✅
         </td>
