@@ -20,13 +20,13 @@ Higher memory bandwidth and lower inference time indicate better performance.
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20251029_v1)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260901_v1)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
 - **M3 Max** shows impressive memory bandwidth (2.2x over M1 series) and excellent inference performance (1.9x faster than M1)
 - **Base M2** has slightly better bandwidth than M1 series but slightly worse inference time
-- The M2 Max/Ultra and M4 base model show modest improvements, while M3 Max and high-end M4 variants represent significant leaps in performance
+- The M2 Pro/Max/Ultra and M4 base model show modest improvements, while M3 Max and high-end M4 variants represent significant leaps in performance
 - **M5** shows solid performance with good memory bandwidth improvement (1.3x) and faster inference times (1.2x), positioning it competitively between M2 and M3 Max performance levels
 - **M5 Max** achieves the highest memory bandwidth of all chips tested (148.39 GB/s, 2.7x over M1 Pro), surpassing even M4 Pro, with excellent inference time (3.71 ms, 2.0x factor) matching M4 Pro/Max performance
 
@@ -41,6 +41,7 @@ As shown in the visualization:
 | M1 Max | 54.62 | 7.61 | 1.0x | 1.0x |
 | M1 Ultra | 54.72 | 7.58 | 1.0x | 1.0x |
 | M2 | 60.45 | 8.67 | 1.1x | 0.9x |
+| M2 Pro | 61.93 | 6.66 | 1.1x | 1.1x |
 | M2 Max | 62.01 | 6.64 | 1.1x | 1.1x |
 | M2 Ultra | 61.68 | 6.70 | 1.1x | 1.1x |
 | M3 | 63.10 | 6.95 | 1.2x | 1.1x |
@@ -55,7 +56,7 @@ As shown in the visualization:
 
 1. **Neural Engine Scaling**:
    - All M1 variants (Pro, Max, Ultra) show very similar performance, suggesting limited Neural Engine scaling in first-generation Apple Silicon
-   - Similar pattern with M2 Ultra vs M2 Max
+   - Similar pattern with M2 Pro/Max/Ultra (no meaningful ANE scaling across those variants)
    - The base M2 chip has slightly better bandwidth than M1 series, but surprisingly worse inference time
    - M3 Max shows excellent memory bandwidth utilization and very good inference times, competitive with M4 series
    - M4 series demonstrates slightly better performance across both metrics compared to M3 Max
@@ -73,7 +74,7 @@ As shown in the visualization:
 
 3. **Inference Time Improvements**:
    - Base M2 actually performs slightly worse (0.9x) than M1 series for inference time
-   - M2 Max/Ultra models show modest improvements (1.1x) over M1 series
+   - M2 Pro/Max/Ultra models show modest improvements (1.1x) over M1 series
    - M3 Max shows impressive inference performance (3.98 ms), nearly as fast as the best M4 chips
    - High-end M4 chips are only marginally faster (3.85-3.87 ms) than the M3 Max
    - This suggests the major architectural leap for Neural Engine inference performance occurred with the M3 generation
@@ -93,6 +94,7 @@ As shown in the visualization:
 | M4 | 64 | 120 | 53% |
 | M3 | 63 | 100 | 63% |
 | M2 Max | 62 | 400 | 16% |
+| M2 Pro | 62 | 200 | 31% |
 | M2 Ultra | 62 | 800 | 8% |
 | M1 | 61 | 68 | 89% |
 | M2 | 60 | 100 | 60% |
