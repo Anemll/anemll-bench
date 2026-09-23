@@ -46,17 +46,13 @@ def generate_visualizations(args):
     # In a real implementation, this would come from parsing the benchmark results file
     chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Max', 'M2 Ultra', 'M3 Max', 'M4', 'M4 Pro\n24GB Mini', 'M4 Max']
     bandwidth = [60.87, 54.90, 54.62, 54.72, 60.45, 62.01, 61.68, 120.22, 64.18, 126.36, 118.88]  # GB/s (llama_lm_head)
-    inference = [7.52, 7.45, 7.61, 7.58, 8.67, 6.64, 6.70, 3.98, 6.45, 3.85, 3.87]           # ms (llama_lm_head_lut6)
     bandwidth_factor = ['1.1x', '1.0x', '1.0x', '1.0x', '1.1x', '1.1x', '1.1x', '2.2x', '1.2x', '2.3x', '2.2x']
-    inference_factor = ['1.0x', '1.0x', '1.0x', '1.0x', '0.9x', '1.1x', '1.1x', '1.9x', '1.2x', '2.0x', '2.0x']
 
     # Create benchmark data dictionary
     benchmark_data = {
         'chips': chips,
         'bandwidth': bandwidth,
-        'inference': inference,
         'bandwidth_factor': bandwidth_factor,
-        'inference_factor': inference_factor,
     }
     
     # Generate visualization for llama_lm_head model
@@ -89,11 +85,7 @@ This document presents benchmark results for various machine learning models on 
 
 ## Overview
 
-ANEMLL-Bench measures two primary metrics:
-1. **Memory Bandwidth (GB/s)**: How Apple Chip Generation utilizes memory bandwidth
-2. **Inference Time (ms)**: How quickly the model produces results
-
-Higher memory bandwidth and lower inference time indicate better performance.
+This cross-chip comparison reports `llama_lm_head` memory bandwidth. A cross-chip latency comparison is intentionally omitted until every result uses the same model artifact and benchmark protocol.
 
 ## Apple Silicon Performance Comparison
 
@@ -103,20 +95,19 @@ The chart below shows performance comparison across Apple Silicon generations fo
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
-- **M4 Series** inference times are approximately 2.0x faster than M1 series
 - The improvements from M1 to M2 were modest (~1.1x), while M4 represents a significant leap
 
 ## Detailed Benchmark Results
 
 ### llama_lm_head Model (Standard)
 
-| Chip | Memory Bandwidth (GB/s) | Inference Time (ms) | Bandwidth Factor | Inference Factor |
-|------|------------------------|---------------------|------------------|------------------|"""
+| Chip | Memory Bandwidth (GB/s) | Bandwidth Factor |
+|------|------------------------|------------------|"""
 
     # Add benchmark data to table
     for i in range(len(benchmark_data['chips'])):
         content += f"""
-| {benchmark_data['chips'][i]} | {benchmark_data['bandwidth'][i]} | {benchmark_data['inference'][i]} | {benchmark_data['bandwidth_factor'][i]} | {benchmark_data['inference_factor'][i]} |"""
+| {benchmark_data['chips'][i]} | {benchmark_data['bandwidth'][i]} | {benchmark_data['bandwidth_factor'][i]} |"""
 
     content += """
 
@@ -130,10 +121,6 @@ As shown in the visualization:
 2. **Memory Bandwidth Efficiency**:
    - M4 series shows a ~2.3x improvement in memory bandwidth utilization
    - This indicates substantial architectural improvements in the Neural Engine
-
-3. **Inference Time Improvements**:
-   - M4 chips process the same model in approximately half the time compared to M1 chips
-   - This translates directly to improved user experience for AI applications
 
 ## Running Your Own Benchmarks
 
@@ -229,4 +216,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

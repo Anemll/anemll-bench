@@ -10,59 +10,62 @@ This document presents benchmark results for various machine learning models on 
 
 ## Overview
 
-ANEMLL-Bench measures two primary metrics:
-1. **Memory Bandwidth (GB/s)**: How Apple Chip Generation utilizes memory bandwidth (higher is better)
-2. **Inference Time (ms)**: How quickly the model produces results (lower is better)
-
-Higher memory bandwidth and lower inference time indicate better performance.
+The cross-chip comparison below reports `llama_lm_head` memory bandwidth. A historical latency column mixed `llama_lm_head_lut6` and full `llama_lm_head` artifacts, so it has been removed rather than presented as a cross-chip comparison.
 
 ## Apple Silicon Performance Comparison
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260901_v1)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260923_v1)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
-- **M3 Max** shows impressive memory bandwidth (2.2x over M1 series) and excellent inference performance (1.9x faster than M1)
-- **Base M2** has slightly better bandwidth than M1 series but slightly worse inference time
+- **M3 Max** shows impressive memory bandwidth (2.2x over M1 series)
+- **Base M2** has slightly better bandwidth than M1 series
 - The M2 Pro/Max/Ultra and M4 base model show modest improvements, while M3 Max and high-end M4 variants represent significant leaps in performance
-- **M5** shows solid performance with good memory bandwidth improvement (1.3x) and faster inference times (1.2x), positioning it competitively between M2 and M3 Max performance levels
-- **M5 Max** achieves the highest memory bandwidth of all chips tested (148.39 GB/s, 2.7x over M1 Pro), surpassing even M4 Pro, with excellent inference time (3.71 ms, 2.0x factor) matching M4 Pro/Max performance
+- **M5** shows a 1.3x memory-bandwidth improvement over M1 series
+- **M5 Max** and **M6 (Mac18,5, 32 GB)** are the two highest reported single-model bandwidth results, at 148.39 GB/s and 152.01 GB/s respectively
 
 ## Detailed Benchmark Results
 
 ### llama_lm_head Model (Standard)
 
-| Chip | Memory Bandwidth (GB/s) | Inference Time (ms) | Bandwidth Factor | Inference Factor |
-|------|------------------------|---------------------|------------------|------------------|
-| M1 | 60.87 | 7.52 | 1.1x | 1.0x |
-| M1 Pro | 54.90 | 7.45 | 1.0x | 1.0x |
-| M1 Max | 54.62 | 7.61 | 1.0x | 1.0x |
-| M1 Ultra | 54.72 | 7.58 | 1.0x | 1.0x |
-| M2 | 60.45 | 8.67 | 1.1x | 0.9x |
-| M2 Pro | 61.93 | 6.66 | 1.1x | 1.1x |
-| M2 Max | 62.01 | 6.64 | 1.1x | 1.1x |
-| M2 Ultra | 61.68 | 6.70 | 1.1x | 1.1x |
-| M3 | 63.10 | 6.95 | 1.2x | 1.1x |
-| M3 Max | 120.22 | 3.98 | 2.2x | 1.9x |
-| M4 | 64.18 | 6.45 | 1.2x | 1.2x |
-| M4 Pro 24GB Mini| 126.36 | 3.85 | 2.3x | 2.0x |
-| M4 Max | 118.88 | 3.87 | 2.2x | 2.0x |
-| M5 | 70.21 | 6.10 | 1.3x | 1.2x |
-| M5 Max | 148.39 | 3.71 | 2.7x | 2.0x |
+| Chip | Memory Bandwidth (GB/s) | Bandwidth Factor |
+|------|------------------------|------------------|
+| M1 | 60.87 | 1.1x |
+| M1 Pro | 54.90 | 1.0x |
+| M1 Max | 54.62 | 1.0x |
+| M1 Ultra | 54.72 | 1.0x |
+| M2 | 60.45 | 1.1x |
+| M2 Pro | 61.93 | 1.1x |
+| M2 Max | 62.01 | 1.1x |
+| M2 Ultra | 61.68 | 1.1x |
+| M3 | 63.10 | 1.2x |
+| M3 Max | 120.22 | 2.2x |
+| M4 | 64.18 | 1.2x |
+| M4 Pro 24GB Mini| 126.36 | 2.3x |
+| M4 Max | 118.88 | 2.2x |
+| M5 | 70.21 | 1.3x |
+| M5 Max | 148.39 | 2.7x |
+| M6 (Mac18,5, 32 GB) | 152.01 | 2.8x |
+
+### Verified `llama_lm_head` Single-Model Latency
+
+| Chip | Inference Time (ms) | Model Size (MB) | Provenance |
+|------|--------------------:|----------------:|------------|
+| M5 Max | 7.08 | 1050.67 | Standalone benchmark report |
+| M6 (Mac18,5, 32 GB) | 6.91 | 1050.67 | Supplied benchmark report; run count and warmup policy not stated |
 
 ### Key Observations
 
 1. **Neural Engine Scaling**:
    - All M1 variants (Pro, Max, Ultra) show very similar performance, suggesting limited Neural Engine scaling in first-generation Apple Silicon
-   - Similar pattern with M2 Pro/Max/Ultra (no meaningful ANE scaling across those variants)
-   - The base M2 chip has slightly better bandwidth than M1 series, but surprisingly worse inference time
-   - M3 Max shows excellent memory bandwidth utilization and very good inference times, competitive with M4 series
-   - M4 series demonstrates slightly better performance across both metrics compared to M3 Max
+   - Similar pattern with M2 Pro/Max/Ultra
+   - The base M2 chip has slightly better bandwidth than M1 series
+   - M3 Max and high-end M4 variants represent the first large bandwidth step in this dataset
    - The base M4 16GB shows modest improvements (~1.2x) over M1 series, significantly underperforming both M3 Max and higher-end M4 variants
-   - **M5 shows solid performance**: It achieves 1.3x memory bandwidth improvement over M1 series (70.21 GB/s) and 1.2x faster inference times (6.10 ms), positioning it competitively between M2 and M3 Max performance levels
-   - **M5 Max leads in bandwidth**: At 148.39 GB/s (2.7x over M1 Pro), the M5 Max achieves the highest memory bandwidth of any chip tested, with inference time of 3.71 ms (2.0x factor) matching M4 Pro/Max performance
+   - **M5** reaches 70.21 GB/s, between the base M2/M3 tier and the higher-bandwidth variants
+   - **M5 Max** and **M6** reach 148.39 GB/s and 152.01 GB/s respectively; parallel/combined dual-model values are not used in the cross-chip table
 
 2. **Memory Bandwidth Efficiency**:
    - M3 Max and high-end M4 series show ~2.2-2.3x improvement in memory bandwidth utilization
@@ -70,22 +73,17 @@ As shown in the visualization:
    - This indicates that the substantial architectural improvements in the Neural Engine started with the M3 generation
    - Entry-level M4 16GB shows ~1.2x improvement, suggesting memory configuration or thermal constraints may be factors
    - M5 achieves 1.3x memory bandwidth improvement, falling between M2 and M3 Max performance levels
-   - M5 Max achieves the highest bandwidth at 2.7x, surpassing all other chips including M4 Pro (2.3x)
+   - M5 Max reaches 2.7x bandwidth over M1 Pro, while the M6 (Mac18,5, 32 GB) report reaches 2.8x; the M6 report is a single reported result rather than the existing multi-run dataset
 
-3. **Inference Time Improvements**:
-   - Base M2 actually performs slightly worse (0.9x) than M1 series for inference time
-   - M2 Pro/Max/Ultra models show modest improvements (1.1x) over M1 series
-   - M3 Max shows impressive inference performance (3.98 ms), nearly as fast as the best M4 chips
-   - High-end M4 chips are only marginally faster (3.85-3.87 ms) than the M3 Max
-   - This suggests the major architectural leap for Neural Engine inference performance occurred with the M3 generation
-   - M4 represents a more incremental improvement over M3 Max for inference workloads
-   - **M5 shows solid inference performance** (6.10 ms), achieving 1.2x improvement over M1 series, which aligns well with its memory bandwidth improvements and positions it competitively in the performance landscape
-   - **M5 Max inference time** (3.71 ms) achieves 2.0x improvement over M1 series, matching M4 Pro/Max levels and confirming the performance leap from M3 generation continues. Dual model benchmarking shows the M5 Max maintains full bandwidth (147.62 GB/s combined) when running two models in parallel
+3. **Latency Comparison Status**:
+   - The historical M1–M5 latency values came from a `llama_lm_head_lut6` sample list while the surrounding table claimed the full `llama_lm_head`; they are intentionally not used for cross-chip factors or conclusions
+   - The verified M5 Max and M6 full-model latency results are listed above without a relative factor; a controlled matching-model campaign is required for a valid cross-chip latency chart
 
 ### ANE Bandwidth vs System Memory Bandwidth
 
 | Chip | ANE BW (GB/s) | System Mem BW (GB/s) | ANE Utilization |
 |------|---------------:|--------------------:|----------------:|
+| **M6 (32 GB)** | **152** | **170** | **89%** |
 | **M5 Max** | **148** | **614** | **24%** |
 | M4 Pro | 126 | 273 | 46% |
 | M3 Max | 120 | 400 | 30% |
@@ -102,8 +100,10 @@ As shown in the visualization:
 | M1 Ultra | 55 | 800 | 7% |
 | M1 Max | 55 | 400 | 14% |
 
+The M6 (32 GB) report reaches 152.01 GB/s, or about 89% of its 170 GB/s unified-memory bandwidth. Because the reported timing includes compute work, this utilization is slightly conservative.
+
 The ANE does not scale linearly with system memory bandwidth. Three clear performance tiers emerge:
-- **Tier 1 (~120-150 GB/s)**: M5 Max, M4 Pro, M3 Max, M4 Max — architectural ANE improvements
+- **Tier 1 (~120-152 GB/s)**: M6 (Mac18,5), M5 Max, M4 Pro, M3 Max, M4 Max — architectural ANE improvements
 - **Tier 2 (~60-70 GB/s)**: M5, M4, M3, M2 series, M1 — base ANE performance
 - **Tier 3 (~55 GB/s)**: M1 Pro/Max/Ultra — first-generation ANE with no scaling across variants
 

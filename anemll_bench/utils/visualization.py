@@ -56,6 +56,22 @@ def plot_chip_comparison(
 
     # Plot the bandwidth bars
     bars1 = ax1.bar(x, bandwidth, width, label='Bandwidth (GB/s)', color=bandwidth_color)
+    ax1.margins(y=0.14)
+
+    # Keep measured values inside the bars; counter-clockwise rotation keeps
+    # all labels readable as chip count grows.
+    for bar, value in zip(bars1, bandwidth):
+        ax1.annotate(
+            f'{value:.0f} GB/s',
+            xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
+            xytext=(0, -5),
+            textcoords='offset points',
+            ha='center',
+            va='top',
+            rotation=90,
+            fontsize=8,
+            color='white',
+        )
 
     # Configure the x-axis
     ax1.set_xticks(x)
@@ -65,8 +81,17 @@ def plot_chip_comparison(
     # Set y-axis label
     ax1.set_ylabel('Bandwidth (GB/s)\n(higher is better)', color=bandwidth_color)
 
-    # Set title and legend
-    plt.title(title)
+    # Keep the benchmark caveat visible without competing with the title.
+    fig.suptitle(title, y=0.985)
+    fig.text(
+        0.5,
+        0.955,
+        'Measured GB/s is slightly underestimated because benchmark timing includes compute work.',
+        ha='center',
+        va='top',
+        fontsize=10,
+        color='#555555',
+    )
     ax1.legend(loc='upper left')
 
     # Annotate the bandwidth factor labels if provided
@@ -82,7 +107,7 @@ def plot_chip_comparison(
     if any('\n' in chip for chip in chips):
         plt.subplots_adjust(bottom=0.18)  # Increase bottom margin for multi-line labels
     
-    plt.tight_layout()
+    plt.tight_layout(rect=(0, 0, 1, 0.93))
     
     # Save the figure if a path is provided
     if save_path:
@@ -160,4 +185,4 @@ def plot_benchmark_results(
     
     else:
         logger.warning(f"Unsupported plot type: {plot_type}")
-        return None 
+        return None

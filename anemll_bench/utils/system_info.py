@@ -190,11 +190,18 @@ def get_ane_info():
                 # M4 Max
                 'MacBookPro18,1': {'cores': 32, 'generation': 'M4 Max', 'tflops': '76'},
                 'MacBookPro18,2': {'cores': 32, 'generation': 'M4 Max', 'tflops': '76'},
+
+                # M6 -- reported by benchmark_report_macos_15_x_20260922_200528.html
+                # The report identifies Mac18,5 as Apple M6, but does not establish
+                # an ANE core count or TFLOPS figure.
+                'Mac18,5': {'cores': 'Unknown', 'generation': 'M6', 'tflops': 'Unknown'},
             }
             
             if mac_model in ane_specs:
                 specs = ane_specs[mac_model]
-                ane_info.update(specs)
+                ane_info['cores'] = specs['cores']
+                ane_info['ane_generation'] = specs['generation']
+                ane_info['tflops'] = specs['tflops']
             else:
                 # Try to infer from model name patterns
                 if 'MacBookAir' in mac_model:
@@ -280,4 +287,4 @@ def get_system_info():
 if __name__ == "__main__":
     # Print system info when run directly
     info = get_system_info()
-    print(json.dumps(info, indent=2)) 
+    print(json.dumps(info, indent=2))
