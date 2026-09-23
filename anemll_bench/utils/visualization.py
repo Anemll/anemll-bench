@@ -75,8 +75,8 @@ def plot_chip_comparison(
 
     # Configure the x-axis
     ax1.set_xticks(x)
-    ax1.set_xticklabels(chips)
-    ax1.set_xlabel('Chip')
+    ax1.set_xticklabels(chips, fontsize=8)
+    ax1.set_xlabel('Chip', labelpad=40)
 
     # Set y-axis label
     ax1.set_ylabel('Bandwidth (GB/s)\n(higher is better)', color=bandwidth_color)
@@ -95,17 +95,19 @@ def plot_chip_comparison(
     ax1.legend(loc='upper left')
 
     # Annotate the bandwidth factor labels if provided
+    max_chip_label_lines = max((chip.count('\n') + 1 for chip in chips), default=1)
+    factor_y = -0.12 - 0.07 * (max_chip_label_lines - 1)
     if bandwidth_factor:
         for i, bar in enumerate(bars1):
             x_center = bar.get_x() + bar.get_width() / 2
-            ax1.text(x_center, -0.08, bandwidth_factor[i],
+            ax1.text(x_center, factor_y, bandwidth_factor[i],
                     ha='center', va='top',
                     transform=ax1.get_xaxis_transform(),
                     fontsize=8, color='black')
 
     # Check if any chip labels contain newlines and add more bottom padding if needed
     if any('\n' in chip for chip in chips):
-        plt.subplots_adjust(bottom=0.18)  # Increase bottom margin for multi-line labels
+        plt.subplots_adjust(bottom=0.27)  # Leave room for chip labels and factors
     
     plt.tight_layout(rect=(0, 0, 1, 0.93))
     

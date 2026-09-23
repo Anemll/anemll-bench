@@ -36,7 +36,7 @@ ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.c
 
 ## 📊 [View Benchmark Results](./Results.MD) 📊
 
-[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260923_v1)](./Results.MD)
+[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260923_m5u_v1)](./Results.MD)
 
 Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1 through M6 series).
 
@@ -45,6 +45,7 @@ Check out our latest [benchmark results](./Results.MD) comparing performance acr
 | Chip | ANE BW (GB/s) | System Mem BW (GB/s) | ANE Utilization |
 |------|---------------:|--------------------:|----------------:|
 | **M6 (32 GB)** | **152** | **170** | **89%** |
+| **M5 Ultra (36/80/256)** | **150** | **1200** | **13%** |
 | **M5 Max** | **148** | **614** | **24%** |
 | M4 Pro | 126 | 273 | 46% |
 | M3 Max | 120 | 400 | 30% |

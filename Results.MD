@@ -16,7 +16,7 @@ The cross-chip comparison below reports `llama_lm_head` memory bandwidth. A hist
 
 The chart below shows performance comparison across Apple Silicon generations for the `llama_lm_head` model:
 
-![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260923_v1)
+![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260923_m5u_v1)
 
 As shown in the visualization:
 - **M4 Series** chips demonstrate approximately 2.3x higher memory bandwidth compared to M1 series
@@ -24,7 +24,7 @@ As shown in the visualization:
 - **Base M2** has slightly better bandwidth than M1 series
 - The M2 Pro/Max/Ultra and M4 base model show modest improvements, while M3 Max and high-end M4 variants represent significant leaps in performance
 - **M5** shows a 1.3x memory-bandwidth improvement over M1 series
-- **M5 Max** and **M6 (Mac18,5, 32 GB)** are the two highest reported single-model bandwidth results, at 148.39 GB/s and 152.01 GB/s respectively
+- **M5 Max**, **M5 Ultra (36/80/256)**, and **M6 (Mac18,5, 32 GB)** are the three highest reported single-model bandwidth results, at 148.39 GB/s, 150.33 GB/s, and 152.01 GB/s respectively
 
 ## Detailed Benchmark Results
 
@@ -47,6 +47,7 @@ As shown in the visualization:
 | M4 Max | 118.88 | 2.2x |
 | M5 | 70.21 | 1.3x |
 | M5 Max | 148.39 | 2.7x |
+| M5 Ultra (36C CPU / 80C GPU / 256 GB) | 150.33 | 2.7x |
 | M6 (Mac18,5, 32 GB) | 152.01 | 2.8x |
 
 ### Verified `llama_lm_head` Single-Model Latency
@@ -54,6 +55,7 @@ As shown in the visualization:
 | Chip | Inference Time (ms) | Model Size (MB) | Provenance |
 |------|--------------------:|----------------:|------------|
 | M5 Max | 7.08 | 1050.67 | Standalone benchmark report |
+| M5 Ultra (36C CPU / 80C GPU / 256 GB) | 6.99 | Not stated | Contributor-supplied result; run count and warmup policy not stated |
 | M6 (Mac18,5, 32 GB) | 6.91 | 1050.67 | Supplied benchmark report; run count and warmup policy not stated |
 
 ### Key Observations
@@ -65,7 +67,7 @@ As shown in the visualization:
    - M3 Max and high-end M4 variants represent the first large bandwidth step in this dataset
    - The base M4 16GB shows modest improvements (~1.2x) over M1 series, significantly underperforming both M3 Max and higher-end M4 variants
    - **M5** reaches 70.21 GB/s, between the base M2/M3 tier and the higher-bandwidth variants
-   - **M5 Max** and **M6** reach 148.39 GB/s and 152.01 GB/s respectively; parallel/combined dual-model values are not used in the cross-chip table
+   - **M5 Max**, **M5 Ultra**, and **M6** reach 148.39 GB/s, 150.33 GB/s, and 152.01 GB/s respectively; parallel/combined dual-model values are not used in the cross-chip table
 
 2. **Memory Bandwidth Efficiency**:
    - M3 Max and high-end M4 series show ~2.2-2.3x improvement in memory bandwidth utilization
@@ -73,7 +75,7 @@ As shown in the visualization:
    - This indicates that the substantial architectural improvements in the Neural Engine started with the M3 generation
    - Entry-level M4 16GB shows ~1.2x improvement, suggesting memory configuration or thermal constraints may be factors
    - M5 achieves 1.3x memory bandwidth improvement, falling between M2 and M3 Max performance levels
-   - M5 Max reaches 2.7x bandwidth over M1 Pro, while the M6 (Mac18,5, 32 GB) report reaches 2.8x; the M6 report is a single reported result rather than the existing multi-run dataset
+   - M5 Max and M5 Ultra reach 2.7x bandwidth over M1 Pro, while the M6 (Mac18,5, 32 GB) report reaches 2.8x; the M5 Ultra and M6 reports are single reported results rather than the existing multi-run dataset
 
 3. **Latency Comparison Status**:
    - The historical M1–M5 latency values came from a `llama_lm_head_lut6` sample list while the surrounding table claimed the full `llama_lm_head`; they are intentionally not used for cross-chip factors or conclusions
@@ -84,6 +86,7 @@ As shown in the visualization:
 | Chip | ANE BW (GB/s) | System Mem BW (GB/s) | ANE Utilization |
 |------|---------------:|--------------------:|----------------:|
 | **M6 (32 GB)** | **152** | **170** | **89%** |
+| **M5 Ultra (36/80/256)** | **150** | **1200** | **13%** |
 | **M5 Max** | **148** | **614** | **24%** |
 | M4 Pro | 126 | 273 | 46% |
 | M3 Max | 120 | 400 | 30% |
@@ -100,10 +103,10 @@ As shown in the visualization:
 | M1 Ultra | 55 | 800 | 7% |
 | M1 Max | 55 | 400 | 14% |
 
-The M6 (32 GB) report reaches 152.01 GB/s, or about 89% of its 170 GB/s unified-memory bandwidth. Because the reported timing includes compute work, this utilization is slightly conservative.
+The M6 (32 GB) report reaches 152.01 GB/s, or about 89% of its 170 GB/s unified-memory bandwidth. The M5 Ultra (36/80/256) contributor result reaches 150.33 GB/s, or about 13% of its 1.2 TB/s unified-memory bandwidth. Because the reported timing includes compute work, these utilization values are slightly conservative.
 
 The ANE does not scale linearly with system memory bandwidth. Three clear performance tiers emerge:
-- **Tier 1 (~120-152 GB/s)**: M6 (Mac18,5), M5 Max, M4 Pro, M3 Max, M4 Max — architectural ANE improvements
+- **Tier 1 (~120-152 GB/s)**: M6 (Mac18,5), M5 Ultra, M5 Max, M4 Pro, M3 Max, M4 Max — architectural ANE improvements
 - **Tier 2 (~60-70 GB/s)**: M5, M4, M3, M2 series, M1 — base ANE performance
 - **Tier 3 (~55 GB/s)**: M1 Pro/Max/Ultra — first-generation ANE with no scaling across variants
 
@@ -118,6 +121,18 @@ The ANE does not scale linearly with system memory bandwidth. Three clear perfor
 | Combined (parallel) | 14.21 | 147.62 | 2101.35 |
 
 The M5 Max maintains nearly identical combined throughput (147.62 GB/s) when running two models in parallel compared to individual runs (~147 GB/s), demonstrating efficient bandwidth utilization across both ANE clusters.
+
+### Dual Model Benchmark Results (M5 Ultra, 36C CPU / 80C GPU / 256 GB)
+
+| Configuration | Inference Time (ms) | Estimated Throughput (GB/s) |
+|--------------|--------------------:|----------------------------:|
+| llama_lm_head (alone) | 6.98 | — |
+| DeepHermes_lm_head (alone) | 6.98 | — |
+| llama_lm_head (concurrent) | 14.00 | — |
+| DeepHermes_lm_head (concurrent) | 12.67 | — |
+| Combined (concurrent) | — | 150.07 |
+
+The M5 Ultra contributor result reports 150.07 GB/s combined throughput when both models run concurrently. That is effectively the same as its 150.33 GB/s single-model `llama_lm_head` result, so the dual-model value is documented separately and is not used in the cross-chip single-model chart.
 
 ## Running Your Own Benchmarks
 
