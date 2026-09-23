@@ -28,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     # Sample data from llama_lm_head model benchmarks
-    chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Pro', 'M2 Max', 'M2 Ultra', 'M3', 'M3 Max', 'M4', 'M4 Pro\n24GB Mini', 'M4 Max', 'M5', 'M5 Max', 'M5 Ultra', 'M6']
+    chips = ['M1', 'M1 Pro', 'M1 Max', 'M1 Ultra', 'M2', 'M2 Pro', 'M2 Max', 'M2 Ultra', 'M3', 'M3 Ultra', 'M4', 'M4 Pro\n24GB Mini', 'M4 Max', 'M5', 'M5 Max', 'M5 Ultra', 'M6']
     bandwidth = [60.87, 54.90, 54.62, 54.72, 60.45, 61.93, 62.01, 61.68, 63.10, 120.22, 64.18, 126.36, 118.88, 70.21, 148.39, 150.33, 152.01]  # GB/s (llama_lm_head)
     bandwidth_factor = ['1.1x', '1.0x', '1.0x', '1.0x', '1.1x', '1.1x', '1.1x', '1.1x', '1.1x', '2.2x', '1.2x', '2.3x', '2.2x', '1.3x', '2.7x', '2.7x', '2.8x']
 

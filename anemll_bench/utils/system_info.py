@@ -177,7 +177,7 @@ def get_ane_info():
                 'MacBookPro18,2': {'cores': 32, 'generation': 'M3 Max', 'tflops': '36'},
                 
                 # M3 Ultra
-                'MacStudio1,1': {'cores': 64, 'generation': 'M3 Ultra', 'tflops': '72'},
+                'Mac15,14': {'cores': 32, 'generation': 'M3 Ultra', 'tflops': 'Unknown'},
                 
                 # M4 Series
                 'MacBookAir15,1': {'cores': 16, 'generation': 'M4', 'tflops': '38'},
