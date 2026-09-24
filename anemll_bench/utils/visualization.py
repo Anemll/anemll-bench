@@ -74,8 +74,9 @@ def plot_chip_comparison(
         )
 
     # Configure the x-axis
+    chip_label_fontsize = 7 if len(chips) > 17 else 8
     ax1.set_xticks(x)
-    ax1.set_xticklabels(chips, fontsize=8)
+    ax1.set_xticklabels(chips, fontsize=chip_label_fontsize)
     ax1.set_xlabel('Chip', labelpad=40)
 
     # Set y-axis label
