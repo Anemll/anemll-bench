@@ -36,7 +36,7 @@ ANEMLL-Bench is part on ANEMLL Open Source Project [anemll.com](https://anemll.c
 
 ## 📊 [View Benchmark Results](./Results.MD) 📊
 
-[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260924_m5p_v1)](./Results.MD)
+[![Apple Silicon Performance Comparison](./reports/chip_comparison_llama_lm_head.png?v=20260930_m6_16gb)](./Results.MD)
 
 Check out our latest [benchmark results](./Results.MD) comparing performance across different Apple Silicon chips (M1 through M6 series).
 
