@@ -25,6 +25,7 @@ As shown in the visualization:
 - The M2 Pro/Max/Ultra and M4 base model show modest improvements, while M3 Ultra and high-end M4 variants represent significant leaps in performance
 - **M5** shows a 1.3x memory-bandwidth improvement over M1 series
 - **M5 Pro**, **M5 Max**, **M5 Ultra (36/80/256)**, and **M6 (Mac18,5, 32 GB)** are the four highest reported single-model bandwidth results, at 150.00 GB/s, 148.39 GB/s, 150.33 GB/s, and 152.01 GB/s respectively
+- **M6 (Mac18,5, 16 GB)** is documented in its own section below and is not a bar on this chart. Its `llama_lm_head` figure (133.92 GB/s) is end-to-end `predict()` throughput, not ANE weight-read bandwidth
 
 ## Detailed Benchmark Results
 
@@ -60,6 +61,7 @@ As shown in the visualization:
 | M5 Ultra (36C CPU / 80C GPU / 256 GB) | 6.99 | Not stated | Contributor-supplied result; run count and warmup policy not stated |
 | M3 Ultra (Mac15,14, 96 GB) | 8.74 | 1050.67 | Standalone report, 2025-04-24; macOS 15.4.1 |
 | M6 (Mac18,5, 32 GB) | 6.91 | 1050.67 | Supplied benchmark report; run count and warmup policy not stated |
+| M6 (Mac18,5, 16 GB) | 7.85 | 1050.67 | `benchmark_all_models.py`, 300 runs, 2026-09-30; macOS 27.0.1 (26A434). 133.92 GB/s in the section below is end-to-end `predict()` throughput, not ANE weight-read |
 
 ### Key Observations
 
@@ -71,6 +73,7 @@ As shown in the visualization:
    - The base M4 16GB shows modest improvements (~1.2x) over M1 series, significantly underperforming both M3 Ultra and higher-end M4 variants
    - **M5** reaches 70.21 GB/s, between the base M2/M3 tier and the higher-bandwidth variants
    - **M5 Pro**, **M5 Max**, **M5 Ultra**, and **M6** reach 150.00 GB/s, 148.39 GB/s, 150.33 GB/s, and 152.01 GB/s respectively; parallel/combined dual-model values are not used in the cross-chip table
+   - **M6 (Mac18,5, 16 GB)** `llama_lm_head` measures 133.92 GB/s (7.85 ms; 133–137 GB/s across five runs of the same method). That number is end-to-end `predict()` throughput. ANE firmware task timestamps put weight-read nearer ~150 GB/s: around 350 µs of ANE task duration, host idle/wakeup starts to add wall-clock time. It is not entered in the cross-chip bandwidth table, and it is not a ~10–12% ANE-bandwidth deficit versus the 32 GB M6 (152.01 GB/s)
 
 2. **Memory Bandwidth Efficiency**:
    - M3 Ultra and high-end M4 series show ~2.2-2.3x improvement in memory bandwidth utilization
@@ -113,6 +116,30 @@ The ANE does not scale linearly with system memory bandwidth. Three clear perfor
 - **Tier 1 (~120-152 GB/s)**: M6 (Mac18,5), M5 Ultra, M5 Pro, M5 Max, M4 Pro, M3 Ultra, M4 Max — architectural ANE improvements
 - **Tier 2 (~60-70 GB/s)**: M5, M4, M3, M2 series, M1 — base ANE performance
 - **Tier 3 (~55 GB/s)**: M1 Pro/Max/Ultra — first-generation ANE with no scaling across variants
+
+### M6 (Mac18,5, 16 GB) Single-Model Results
+
+Mac18,5, Apple M6, 16 GB, macOS 27.0.1 (26A434). `benchmark_all_models.py`, 300 runs, 2026-09-30, repo `ffc68fc`. Other apps were closed.
+
+| Model | Inference Time (ms) | Throughput (GB/s) | Model Size (MB) |
+|-------|--------------------:|------------------:|----------------:|
+| llama_lm_head | 7.85 | 133.92 | 1050.67 |
+| llama_lm_head_lut6 | 3.27 | 120.96 | 396.06 |
+| DeepHermes_lm_head | 7.69 | 136.66 | 1050.67 |
+
+These throughputs are model size divided by full `predict()` wall-clock: end-to-end effective throughput, not ANE weight-read bandwidth. ANE firmware task start/end timestamps put actual weight-read nearer ~150 GB/s. A transition around 350 µs of ANE task duration lets the waiting CPU enter a deeper idle state, which slows driver completion and userspace wakeup and lowers apparent `predict()` throughput. The ~130 GB/s figures stay valid as end-to-end `predict()` throughput. They are not evidence that the 16 GB M6 ANE is ~10–12% slower than the 32 GB M6, and this result is omitted from the cross-chip bandwidth table and from the ANE-versus-system-memory table (no 16 GB system-memory bandwidth figure was reported).
+
+### Dual Model Benchmark Results (M6, Mac18,5, 16 GB)
+
+| Configuration | Inference Time (ms) | Throughput (GB/s) | Model Size (MB) |
+|--------------|--------------------:|------------------:|----------------:|
+| llama_lm_head (solo) | 7.87 | 133.47 | 1050.67 |
+| DeepHermes_lm_head (solo) | 7.97 | 131.79 | 1050.67 |
+| llama_lm_head (parallel) | 14.83 | 70.84 | 1050.67 |
+| DeepHermes_lm_head (parallel) | 15.43 | 68.09 | 1050.67 |
+| Combined (parallel) | 15.43 | 135.94 | 2101.35 |
+
+The M6 16 GB report (`benchmark_dual_models.py`, 300 runs, 2026-09-30, macOS 27.0.1) shows 135.94 GB/s combined throughput when both models run concurrently. That is effectively the same as its 133.92 GB/s single-model `llama_lm_head` end-to-end `predict()` result, so the dual-model value is documented separately and is not used in the cross-chip single-model chart. These dual-model figures are also end-to-end `predict()` throughput, not the ~150 GB/s firmware weight-read.
 
 ### Dual Model Benchmark Results (M5 Max)
 
